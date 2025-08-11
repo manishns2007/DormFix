@@ -23,9 +23,9 @@ interface DashboardClientProps {
 }
 
 const statusIcons: { [key in MaintenanceStatus]: React.ReactNode } = {
-  Submitted: <ListTodo className="h-6 w-6 text-blue-500" />,
-  'In Progress': <Wrench className="h-6 w-6 text-yellow-500" />,
-  Resolved: <CheckCircle2 className="h-6 w-6 text-green-500" />,
+  Submitted: <ListTodo className="h-4 w-4 text-muted-foreground" />,
+  'In Progress': <Wrench className="h-4 w-4 text-muted-foreground" />,
+  Resolved: <CheckCircle2 className="h-4 w-4 text-muted-foreground" />,
 };
 
 const generateReport = (requestsToReport: MaintenanceRequest[]) => {
@@ -89,7 +89,13 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests }) => {
         acc[req.status] = (acc[req.status] || 0) + 1;
         return acc;
     }, {} as Record<MaintenanceStatus, number>);
-    return { total, urgent, ...statusCounts };
+    return { 
+      total, 
+      urgent, 
+      submitted: statusCounts['Submitted'] || 0,
+      inProgress: statusCounts['In Progress'] || 0,
+      resolved: statusCounts['Resolved'] || 0,
+    };
   }, [requests]);
 
   const categoryData = useMemo(() => {
@@ -113,17 +119,33 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests }) => {
               <div className="text-2xl font-bold">{stats.total}</div>
             </CardContent>
           </Card>
-          {Object.entries(statusIcons).map(([status, icon]) => (
-            <Card key={status}>
+          <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">{status}</CardTitle>
-                {icon}
+                <CardTitle className="text-sm font-medium">In Progress</CardTitle>
+                {statusIcons['In Progress']}
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{stats[status as MaintenanceStatus] || 0}</div>
+                <div className="text-2xl font-bold">{stats.inProgress}</div>
               </CardContent>
-            </Card>
-          ))}
+          </Card>
+          <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Resolved</CardTitle>
+                {statusIcons['Resolved']}
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stats.resolved}</div>
+              </CardContent>
+          </Card>
+           <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Submitted</CardTitle>
+                {statusIcons['Submitted']}
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stats.submitted}</div>
+              </CardContent>
+          </Card>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
@@ -277,3 +299,5 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests }) => {
     </TooltipProvider>
   );
 };
+
+    
