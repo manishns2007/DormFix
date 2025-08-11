@@ -78,6 +78,18 @@ export function NewRequestDialog({ open, onOpenChange }: NewRequestDialogProps) 
     }
     onOpenChange(isOpen);
   }
+  
+  const onSubmit = (data: z.infer<typeof createRequestSchema>) => {
+    const formData = new FormData();
+    Object.entries(data).forEach(([key, value]) => {
+        if(value) formData.append(key, value as string);
+    });
+    const photoInput = document.querySelector('input[name="photo"]') as HTMLInputElement;
+    if (photoInput && photoInput.files && photoInput.files[0]) {
+        formData.append('photo', photoInput.files[0]);
+    }
+    formAction(formData);
+  }
 
   return (
     <Dialog open={open} onOpenChange={handleDialogClose}>
@@ -89,7 +101,7 @@ export function NewRequestDialog({ open, onOpenChange }: NewRequestDialogProps) 
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form action={formAction} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
               name="roomNumber"
@@ -177,17 +189,7 @@ export function NewRequestDialog({ open, onOpenChange }: NewRequestDialogProps) 
 
             <DialogFooter>
               <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
-              <Button type="submit" onClick={form.handleSubmit( (data) => {
-                  const formData = new FormData();
-                  Object.entries(data).forEach(([key, value]) => {
-                      if(value) formData.append(key, value);
-                  });
-                  const photoInput = document.querySelector('input[name="photo"]') as HTMLInputElement;
-                  if (photoInput && photoInput.files && photoInput.files[0]) {
-                      formData.append('photo', photoInput.files[0]);
-                  }
-                  formAction(formData);
-              })}>
+              <Button type="submit">
                 Submit Request
               </Button>
             </DialogFooter>
