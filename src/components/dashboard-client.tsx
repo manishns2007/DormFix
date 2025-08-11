@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, FC } from 'react';
+import { useState, useMemo, FC, useEffect } from 'react';
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import { PlusCircle, Download, Copy, ShieldAlert, BarChart3, ListTodo, Wrench, CheckCircle2 } from 'lucide-react';
 import { saveAs } from 'file-saver';
@@ -17,6 +17,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tooltip as UiTooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { NewRequestDialog } from '@/components/new-request-dialog';
 import { CategoryIcon } from './icons';
+import { detectDuplicateRequests } from '@/ai/flows/detect-duplicate-requests';
 
 interface DashboardClientProps {
   requests: MaintenanceRequest[];
@@ -49,7 +50,7 @@ const generateReport = (requestsToReport: MaintenanceRequest[]) => {
           new Paragraph({ text: `Priority: ${req.priority}` }),
           new Paragraph({ text: `Status: ${req.status}` }),
           new Paragraph({ text: `Urgency: ${req.urgency || 'N/A'}` }),
-          new Paragraph({ text: `Submitted: ${format(req.createdDate, 'PPP p')}` }),
+          new Paragraph({ text: `Submitted: ${format(new Date(req.createdDate), 'PPP p')}` }),
           new Paragraph({ text: `Description: ${req.description}` }),
           new Paragraph({ text: "" }),
         ]),
@@ -62,7 +63,8 @@ const generateReport = (requestsToReport: MaintenanceRequest[]) => {
   });
 };
 
-export const DashboardClient: FC<DashboardClientProps> = ({ requests }) => {
+export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialRequests }) => {
+  const [requests, setRequests] = useState(initialRequests.map(r => ({...r, createdDate: new Date(r.createdDate)})));
   const [filters, setFilters] = useState({
     roomNumber: '',
     category: 'all',
@@ -70,6 +72,38 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests }) => {
     status: 'all',
   });
   const [isNewRequestOpen, setIsNewRequestOpen] = useState(false);
+
+  useEffect(() => {
+    const runDuplicateDetection = async () => {
+      const aiInput = {
+        requests: initialRequests.map((r) => ({
+          roomNumber: r.roomNumber,
+          category: r.category,
+          priority: r.priority,
+          description: r.description,
+          status: r.status,
+          createdDate: format(new Date(r.createdDate), "yyyy-MM-dd"),
+        })),
+      };
+
+      try {
+        const { duplicateGroups } = await detectDuplicateRequests(aiInput);
+        const allDuplicateIndices = new Set(duplicateGroups.flat());
+        const requestsWithDuplicates = initialRequests.map((req, index) => ({
+          ...req,
+          createdDate: new Date(req.createdDate),
+          isDuplicate: allDuplicateIndices.has(index),
+        }));
+        setRequests(requestsWithDuplicates);
+      } catch (error) {
+        console.error("Failed to run duplicate detection:", error);
+        // Fallback to initial requests if AI call fails
+        setRequests(initialRequests.map(r => ({...r, createdDate: new Date(r.createdDate)})));
+      }
+    };
+
+    runDuplicateDetection();
+  }, [initialRequests]);
 
   const filteredRequests = useMemo(() => {
     return requests.filter(req => {
@@ -299,5 +333,3 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests }) => {
     </TooltipProvider>
   );
 };
-
-    

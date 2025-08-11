@@ -12,31 +12,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { getRequests } from "@/lib/data";
-import { detectDuplicateRequests } from "@/ai/flows/detect-duplicate-requests";
 import { DashboardClient } from "@/components/dashboard-client";
-import { format } from "date-fns";
 
 export default async function DashboardPage() {
   const requests = await getRequests();
 
-  const aiInput = {
-    requests: requests.map((r) => ({
-      roomNumber: r.roomNumber,
-      category: r.category,
-      priority: r.priority,
-      description: r.description,
-      status: r.status,
-      createdDate: format(r.createdDate, "yyyy-MM-dd"),
-    })),
-  };
-
-  const { duplicateGroups } = await detectDuplicateRequests(aiInput);
-  const allDuplicateIndices = new Set(duplicateGroups.flat());
-  const requestsWithDuplicates = requests.map((req, index) => ({
-    ...req,
-    isDuplicate: allDuplicateIndices.has(index),
-  }));
-  
   return (
     <div className="flex min-h-screen w-full flex-col">
       <header className="sticky top-0 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
@@ -78,7 +58,7 @@ export default async function DashboardPage() {
         </div>
       </header>
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-        <DashboardClient requests={requestsWithDuplicates} />
+        <DashboardClient requests={requests} />
       </main>
     </div>
   );
