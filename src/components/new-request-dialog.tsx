@@ -33,8 +33,8 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { createRequest, createRequestSchema } from '@/app/actions';
-import { categories, priorities } from '@/lib/types';
+import { createRequest } from '@/app/actions';
+import { categories, priorities, createRequestSchema } from '@/lib/types';
 
 interface NewRequestDialogProps {
   open: boolean;

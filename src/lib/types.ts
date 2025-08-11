@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 export const categories = ["AC", "Plumbing", "Electrical", "Furniture", "Lift"] as const;
 export type MaintenanceCategory = (typeof categories)[number];
 
@@ -21,3 +23,21 @@ export interface MaintenanceRequest {
   urgency: Urgency;
   isDuplicate?: boolean;
 }
+
+export const createRequestSchema = z.object({
+  roomNumber: z.string().min(1, 'Room number is required.'),
+  category: z.enum(categories),
+  priority: z.enum(priorities),
+  description: z.string().min(10, 'Description must be at least 10 characters.'),
+});
+
+export type CreateRequestState = {
+  message?: string;
+  errors?: {
+    roomNumber?: string[];
+    category?: string[];
+    priority?: string[];
+    description?: string[];
+  };
+  success: boolean;
+};
