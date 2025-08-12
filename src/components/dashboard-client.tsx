@@ -64,7 +64,7 @@ const generateReport = (requestsToReport: MaintenanceRequest[]) => {
 };
 
 export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialRequests }) => {
-  const [requests, setRequests] = useState(initialRequests.map(r => ({...r, createdDate: new Date(r.createdDate)})));
+  const [requests, setRequests] = useState(() => initialRequests.map(r => ({...r, createdDate: new Date(r.createdDate)})));
   const [filters, setFilters] = useState({
     roomNumber: '',
     category: 'all',
@@ -75,6 +75,10 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialReq
 
   useEffect(() => {
     const runDuplicateDetection = async () => {
+      if (!initialRequests || initialRequests.length === 0) {
+        return;
+      }
+      
       const aiInput = {
         requests: initialRequests.map((r) => ({
           roomNumber: r.roomNumber,
