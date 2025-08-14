@@ -12,21 +12,19 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { getRequests } from "@/lib/data";
-import { DashboardClient } from "@/components/dashboard-client";
-import { logout } from "./login/actions";
+import { logout } from "../login/actions";
+import { UserDashboardClient } from "@/components/user-dashboard-client";
 import { redirect } from 'next/navigation';
 
 
-export default async function DashboardPage() {
-  const requests = await getRequests();
-
+export default async function UserDashboardPage() {
+  
   const handleLogout = async () => {
     'use server';
     await logout();
     redirect('/login');
   }
-
+  
   return (
     <div className="flex min-h-screen w-full flex-col">
       <header className="sticky top-0 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
@@ -42,11 +40,11 @@ export default async function DashboardPage() {
             href="#"
             className="text-foreground transition-colors hover:text-foreground"
           >
-            Admin Dashboard
+            User Dashboard
           </a>
         </nav>
         <div className="flex w-full items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
-            <h1 className="flex-1 text-lg font-semibold md:text-2xl">Dashboard</h1>
+            <h1 className="flex-1 text-lg font-semibold md:text-2xl">My Requests</h1>
           <div className="ml-auto flex-initial">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -58,10 +56,7 @@ export default async function DashboardPage() {
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>Settings</DropdownMenuItem>
-                <DropdownMenuItem>Support</DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <form action={handleLogout}>
+                 <form action={handleLogout}>
                     <Button type="submit" variant="ghost" className="w-full justify-start">
                         <LogOut className="mr-2 h-4 w-4"/>
                         Logout
@@ -73,7 +68,7 @@ export default async function DashboardPage() {
         </div>
       </header>
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-        <DashboardClient requests={requests} />
+        <UserDashboardClient />
       </main>
     </div>
   );

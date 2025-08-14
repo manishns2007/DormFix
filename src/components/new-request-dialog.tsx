@@ -32,7 +32,7 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { createRequest } from '@/app/actions';
+import { createRequest } from '@/app/user/actions';
 import { categories, priorities, createRequestSchema } from '@/lib/types';
 
 interface NewRequestDialogProps {
@@ -101,7 +101,7 @@ export function NewRequestDialog({ open, onOpenChange }: NewRequestDialogProps) 
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form action={formAction} onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
               name="roomNumber"

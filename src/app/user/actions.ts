@@ -38,6 +38,7 @@ export async function createRequest(
       imageUrl: formData.get('photo') ? 'https://placehold.co/400x300.png' : undefined,
     });
     
+    revalidatePath('/user');
     revalidatePath('/');
     return { message: `Request submitted successfully. Predicted urgency: ${urgency}.`, success: true };
 
