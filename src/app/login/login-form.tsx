@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -18,7 +18,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { login, type LoginState } from './actions';
-import { useEffect } from 'react';
 
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email address.'),
@@ -36,31 +35,29 @@ export function LoginForm() {
       password: '',
     },
   });
-  
-  const onAction = (state: LoginState, formData: FormData) => {
-    login(state, formData).then((newState) => {
-        if (newState?.success) {
-            toast({
-                title: 'Login Successful',
-                description: 'Redirecting to your dashboard...',
-            });
-            if(newState.role === 'admin') {
-                router.push('/');
-            } else {
-                router.push('/user');
-            }
-        } else if (newState?.message) {
-             toast({
-                title: 'Login Failed',
-                description: newState.message,
-                variant: 'destructive',
-            });
-        }
-    });
-    return state;
-  };
 
-  const [state, formAction] = useActionState(onAction, { message: '', success: false });
+  const [state, formAction] = useActionState(login, { message: '', success: false });
+
+  useEffect(() => {
+    if (state.success) {
+      toast({
+        title: 'Login Successful',
+        description: 'Redirecting to your dashboard...',
+      });
+      if (state.role === 'admin') {
+        router.push('/');
+      } else {
+        router.push('/user');
+      }
+    } else if (state.message && form.formState.isSubmitted) {
+      toast({
+        title: 'Login Failed',
+        description: state.message,
+        variant: 'destructive',
+      });
+    }
+  }, [state, router, toast, form.formState.isSubmitted]);
+
 
   return (
     <Form {...form}>

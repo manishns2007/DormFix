@@ -33,7 +33,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { createRequest } from '@/app/user/actions';
-import { categories, priorities, createRequestSchema } from '@/lib/types';
+import { categories, priorities, createRequestSchema, hostels } from '@/lib/types';
 
 interface NewRequestDialogProps {
   open: boolean;
@@ -46,6 +46,7 @@ export function NewRequestDialog({ open, onOpenChange }: NewRequestDialogProps) 
   const form = useForm<z.infer<typeof createRequestSchema>>({
     resolver: zodResolver(createRequestSchema),
     defaultValues: {
+      hostelName: undefined,
       roomNumber: '',
       category: undefined,
       priority: undefined,
@@ -59,16 +60,16 @@ export function NewRequestDialog({ open, onOpenChange }: NewRequestDialogProps) 
   });
 
   useEffect(() => {
-    if (state.message) {
+    if (state.message && form.formState.isSubmitted) {
       toast({
         title: state.success ? 'Success' : 'Error',
         description: state.message,
         variant: state.success ? 'default' : 'destructive',
       });
-      if (state.success) {
-        onOpenChange(false);
-        form.reset();
-      }
+    }
+    if (state.success) {
+      onOpenChange(false);
+      form.reset();
     }
   }, [state, toast, onOpenChange, form]);
   
@@ -79,18 +80,6 @@ export function NewRequestDialog({ open, onOpenChange }: NewRequestDialogProps) 
     onOpenChange(isOpen);
   }
   
-  const onSubmit = (data: z.infer<typeof createRequestSchema>) => {
-    const formData = new FormData();
-    Object.entries(data).forEach(([key, value]) => {
-        if(value) formData.append(key, value as string);
-    });
-    const photoInput = document.querySelector('input[name="photo"]') as HTMLInputElement;
-    if (photoInput && photoInput.files && photoInput.files[0]) {
-        formData.append('photo', photoInput.files[0]);
-    }
-    formAction(formData);
-  }
-
   return (
     <Dialog open={open} onOpenChange={handleDialogClose}>
       <DialogContent className="sm:max-w-[425px]">
@@ -101,7 +90,31 @@ export function NewRequestDialog({ open, onOpenChange }: NewRequestDialogProps) 
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form action={formAction} onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form action={formAction} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="hostelName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Hostel Name</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a hostel" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {hostels.map((h) => (
+                        <SelectItem key={h} value={h}>
+                          {h}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="roomNumber"
@@ -189,7 +202,7 @@ export function NewRequestDialog({ open, onOpenChange }: NewRequestDialogProps) 
 
             <DialogFooter>
               <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
-              <Button type="submit">
+              <Button type="submit" onClick={form.handleSubmit(() => {})}>
                 Submit Request
               </Button>
             </DialogFooter>

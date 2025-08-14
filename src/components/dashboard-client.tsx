@@ -42,7 +42,7 @@ const generateReport = (requestsToReport: MaintenanceRequest[]) => {
         new Paragraph({ text: "" }),
         ...requestsToReport.flatMap(req => [
           new Paragraph({
-            children: [new TextRun(`Request #${req.id} - Room ${req.roomNumber}`)],
+            children: [new TextRun(`Request #${req.id} - ${req.hostelName}, Room ${req.roomNumber}`)],
             heading: HeadingLevel.HEADING_2,
             style: "heading2",
           }),
@@ -272,6 +272,7 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialReq
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead>Hostel</TableHead>
                     <TableHead className="w-[100px]">Room</TableHead>
                     <TableHead>Category</TableHead>
                     <TableHead>Priority</TableHead>
@@ -283,6 +284,7 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialReq
                 <TableBody>
                   {filteredRequests.length > 0 ? filteredRequests.map(req => (
                     <TableRow key={req.id}>
+                       <TableCell>{req.hostelName}</TableCell>
                       <TableCell className="font-medium">{req.roomNumber}</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
@@ -324,7 +326,7 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialReq
                     </TableRow>
                   )) : (
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center">No requests found.</TableCell>
+                      <TableCell colSpan={7} className="text-center">No requests found.</TableCell>
                     </TableRow>
                   )}
                 </TableBody>

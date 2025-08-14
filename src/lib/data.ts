@@ -1,10 +1,11 @@
 'use server';
 
-import { MaintenanceRequest, MaintenanceCategory, MaintenancePriority, MaintenanceStatus } from './types';
+import { MaintenanceRequest, MaintenanceCategory, MaintenancePriority, MaintenanceStatus, HostelName } from './types';
 
 let requests: MaintenanceRequest[] = [
   {
     id: 'REQ-001',
+    hostelName: 'Podhigai',
     roomNumber: '101',
     category: 'Plumbing',
     priority: 'High',
@@ -15,6 +16,7 @@ let requests: MaintenanceRequest[] = [
   },
   {
     id: 'REQ-002',
+    hostelName: 'Vaigai',
     roomNumber: '205',
     category: 'Electrical',
     priority: 'High',
@@ -25,6 +27,7 @@ let requests: MaintenanceRequest[] = [
   },
   {
     id: 'REQ-003',
+    hostelName: 'Thamirabarani',
     roomNumber: '310',
     category: 'AC',
     priority: 'Medium',
@@ -35,6 +38,7 @@ let requests: MaintenanceRequest[] = [
   },
   {
     id: 'REQ-004',
+    hostelName: 'Podhigai',
     roomNumber: '101',
     category: 'Plumbing',
     priority: 'High',
@@ -46,6 +50,7 @@ let requests: MaintenanceRequest[] = [
   },
   {
     id: 'REQ-005',
+    hostelName: 'Kaveri',
     roomNumber: '415',
     category: 'Furniture',
     priority: 'Low',
@@ -56,6 +61,7 @@ let requests: MaintenanceRequest[] = [
   },
   {
     id: 'REQ-006',
+    hostelName: 'Amaravathi',
     roomNumber: 'G-Lobby',
     category: 'Lift',
     priority: 'High',
@@ -66,6 +72,7 @@ let requests: MaintenanceRequest[] = [
   },
   {
     id: 'REQ-007',
+    hostelName: 'Paalar',
     roomNumber: '520',
     category: 'Electrical',
     priority: 'High',
