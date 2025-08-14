@@ -1,6 +1,7 @@
 'use server';
 
 import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 import { z } from 'zod';
 
 const loginSchema = z.object({
@@ -11,7 +12,6 @@ const loginSchema = z.object({
 export type LoginState = {
   message: string;
   success: boolean;
-  role?: 'admin' | 'user';
 };
 
 const ADMIN_EMAIL = 'admin1235@passmail.in';
@@ -38,13 +38,16 @@ export async function login(
   const { email, password } = validatedFields.data;
   let role: 'admin' | 'user' | null = null;
   let success = false;
+  let redirectPath: string | null = null;
 
   if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
     role = 'admin';
     success = true;
+    redirectPath = '/';
   } else if (email === USER_EMAIL && password === USER_PASSWORD) {
     role = 'user';
     success = true;
+    redirectPath = '/user';
   }
 
   if (success && role) {
@@ -55,7 +58,10 @@ export async function login(
       maxAge: 60 * 60 * 24, // 1 day
       path: '/',
     });
-    return { message: 'Login successful', success: true, role };
+
+    if (redirectPath) {
+      redirect(redirectPath);
+    }
   }
 
   return { message: 'Invalid credentials.', success: false };
@@ -63,4 +69,5 @@ export async function login(
 
 export async function logout() {
     cookies().delete('session');
+    redirect('/login');
 }

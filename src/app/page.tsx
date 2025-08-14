@@ -15,17 +15,10 @@ import {
 import { getRequests } from "@/lib/data";
 import { DashboardClient } from "@/components/dashboard-client";
 import { logout } from "./login/actions";
-import { redirect } from 'next/navigation';
 
 
 export default async function DashboardPage() {
   const requests = await getRequests();
-
-  const handleLogout = async () => {
-    'use server';
-    await logout();
-    redirect('/login');
-  }
 
   return (
     <div className="flex min-h-screen w-full flex-col">
@@ -61,7 +54,7 @@ export default async function DashboardPage() {
                 <DropdownMenuItem>Settings</DropdownMenuItem>
                 <DropdownMenuItem>Support</DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <form action={handleLogout}>
+                <form action={logout}>
                     <Button type="submit" variant="ghost" className="w-full justify-start">
                         <LogOut className="mr-2 h-4 w-4"/>
                         Logout
