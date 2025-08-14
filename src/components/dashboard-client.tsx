@@ -4,7 +4,7 @@ import { useState, useMemo, FC, useEffect } from 'react';
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import { PlusCircle, Download, Copy, ShieldAlert, BarChart3, ListTodo, Wrench, CheckCircle2 } from 'lucide-react';
 import { saveAs } from 'file-saver';
-import { Document, Packer, Paragraph, TextRun, HeadingLevel } from 'docx';
+import { Document, Packer, Paragraph, TextRun, HeadingLevel, Table, TableRow, TableCell, WidthType, BorderStyle } from 'docx';
 import { format } from 'date-fns';
 
 import { MaintenanceRequest, MaintenanceCategory, MaintenancePriority, MaintenanceStatus, categories, priorities, statuses } from '@/lib/types';
@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Table as UiTable, TableBody, TableCell as UiTableCell, TableHead, TableHeader, TableRow as UiTableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip as UiTooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { NewRequestDialog } from '@/components/new-request-dialog';
@@ -30,6 +30,46 @@ const statusIcons: { [key in MaintenanceStatus]: React.ReactNode } = {
 };
 
 const generateReport = (requestsToReport: MaintenanceRequest[]) => {
+  const tableHeader = new TableRow({
+    children: [
+      new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Room Number', bold: true })] })] }),
+      new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Hostel Name', bold: true })] })] }),
+      new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Category', bold: true })] })] }),
+      new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Priority', bold: true })] })] }),
+      new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Description', bold: true })] })] }),
+      new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Status', bold: true })] })] }),
+      new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Created Date', bold: true })] })] }),
+    ],
+  });
+
+  const tableRows = requestsToReport.map(req => new TableRow({
+    children: [
+      new TableCell({ children: [new Paragraph(req.roomNumber)] }),
+      new TableCell({ children: [new Paragraph(req.hostelName)] }),
+      new TableCell({ children: [new Paragraph(req.category)] }),
+      new TableCell({ children: [new Paragraph(req.priority)] }),
+      new TableCell({ children: [new Paragraph(req.description)] }),
+      new TableCell({ children: [new Paragraph(req.status)] }),
+      new TableCell({ children: [new Paragraph(format(new Date(req.createdDate), 'PPP p'))] }),
+    ],
+  }));
+
+  const table = new Table({
+    rows: [tableHeader, ...tableRows],
+    width: {
+        size: 100,
+        type: WidthType.PERCENTAGE,
+    },
+    borders: {
+        top: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
+        bottom: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
+        left: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
+        right: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
+        insideHorizontal: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
+        insideVertical: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
+    },
+  });
+
   const doc = new Document({
     sections: [{
       properties: {},
@@ -40,20 +80,7 @@ const generateReport = (requestsToReport: MaintenanceRequest[]) => {
         }),
         new Paragraph({ text: `Report generated on: ${format(new Date(), 'PPP p')}` }),
         new Paragraph({ text: "" }),
-        ...requestsToReport.flatMap(req => [
-          new Paragraph({
-            children: [new TextRun(`Request #${req.id} - ${req.hostelName}, Room ${req.roomNumber}`)],
-            heading: HeadingLevel.HEADING_2,
-            style: "heading2",
-          }),
-          new Paragraph({ text: `Category: ${req.category}` }),
-          new Paragraph({ text: `Priority: ${req.priority}` }),
-          new Paragraph({ text: `Status: ${req.status}` }),
-          new Paragraph({ text: `Urgency: ${req.urgency || 'N/A'}` }),
-          new Paragraph({ text: `Submitted: ${format(new Date(req.createdDate), 'PPP p')}` }),
-          new Paragraph({ text: `Description: ${req.description}` }),
-          new Paragraph({ text: "" }),
-        ]),
+        table,
       ],
     }],
   });
@@ -269,9 +296,9 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialReq
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
-              <Table>
+              <UiTable>
                 <TableHeader>
-                  <TableRow>
+                  <UiTableRow>
                     <TableHead>Hostel</TableHead>
                     <TableHead className="w-[100px]">Room</TableHead>
                     <TableHead>Category</TableHead>
@@ -279,27 +306,27 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialReq
                     <TableHead>Status</TableHead>
                     <TableHead>Submitted</TableHead>
                     <TableHead className="text-right">Flags</TableHead>
-                  </TableRow>
+                  </UiTableRow>
                 </TableHeader>
                 <TableBody>
                   {filteredRequests.length > 0 ? filteredRequests.map(req => (
-                    <TableRow key={req.id}>
-                       <TableCell>{req.hostelName}</TableCell>
-                      <TableCell className="font-medium">{req.roomNumber}</TableCell>
-                      <TableCell>
+                    <UiTableRow key={req.id}>
+                       <UiTableCell>{req.hostelName}</UiTableCell>
+                      <UiTableCell className="font-medium">{req.roomNumber}</UiTableCell>
+                      <UiTableCell>
                         <div className="flex items-center gap-2">
                            <CategoryIcon category={req.category} className="h-4 w-4 text-muted-foreground" />
                            <span>{req.category}</span>
                         </div>
-                      </TableCell>
-                      <TableCell>
+                      </UiTableCell>
+                      <UiTableCell>
                         <Badge variant={req.priority === 'High' ? 'destructive' : 'secondary'}>{req.priority}</Badge>
-                      </TableCell>
-                      <TableCell>
+                      </UiTableCell>
+                      <UiTableCell>
                          <Badge variant="outline">{req.status}</Badge>
-                      </TableCell>
-                      <TableCell>{format(req.createdDate, 'PPP')}</TableCell>
-                      <TableCell className="text-right">
+                      </UiTableCell>
+                      <UiTableCell>{format(req.createdDate, 'PPP')}</UiTableCell>
+                      <UiTableCell className="text-right">
                         <div className="flex items-center justify-end gap-2">
                           {(req.urgency === 'critical' || req.urgency === 'high') && (
                             <UiTooltip>
@@ -322,15 +349,15 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialReq
                             </UiTooltip>
                           )}
                         </div>
-                      </TableCell>
-                    </TableRow>
+                      </UiTableCell>
+                    </UiTableRow>
                   )) : (
-                    <TableRow>
-                      <TableCell colSpan={7} className="text-center">No requests found.</TableCell>
-                    </TableRow>
+                    <UiTableRow>
+                      <UiTableCell colSpan={7} className="text-center">No requests found.</UiTableCell>
+                    </UiTableRow>
                   )}
                 </TableBody>
-              </Table>
+              </UiTable>
             </div>
           </CardContent>
         </Card>
@@ -339,3 +366,5 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialReq
     </TooltipProvider>
   );
 };
+
+    

@@ -15,10 +15,14 @@ import {
 import { getRequests } from "@/lib/data";
 import { DashboardClient } from "@/components/dashboard-client";
 import { logout } from "./login/actions";
+import { cookies } from 'next/headers';
 
 
 export default async function DashboardPage() {
   const requests = await getRequests();
+  const sessionCookie = cookies().get('session');
+  const session = sessionCookie ? JSON.parse(sessionCookie.value) : null;
+  const userEmail = session?.email || 'My Account';
 
   return (
     <div className="flex min-h-screen w-full flex-col">
@@ -49,7 +53,7 @@ export default async function DashboardPage() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuLabel>{userEmail}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>Settings</DropdownMenuItem>
                 <DropdownMenuItem>Support</DropdownMenuItem>
@@ -71,3 +75,5 @@ export default async function DashboardPage() {
     </div>
   );
 }
+
+    
