@@ -11,18 +11,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { getRequests } from "@/lib/data";
-import { DashboardClient } from "@/components/dashboard-client";
-import { logout } from "./login/actions";
-import { cookies } from 'next/headers';
+import { logout } from "../login/actions";
+import { cookies } from "next/headers";
+import { StudentDashboardClient } from "@/components/student-dashboard-client";
 
 
-export default async function DashboardPage() {
-  const requests = await getRequests();
+export default async function StudentDashboardPage() {
   const sessionCookie = cookies().get('session');
   const session = sessionCookie ? JSON.parse(sessionCookie.value) : null;
   const userEmail = session?.email || 'My Account';
-  const userRole = session?.role || 'Admin';
+  const userRole = session?.role || 'Student';
 
   return (
     <div className="flex min-h-screen w-full flex-col">
@@ -39,11 +37,11 @@ export default async function DashboardPage() {
             href="#"
             className="text-foreground transition-colors hover:text-foreground"
           >
-            Admin Dashboard
+            Student Dashboard
           </a>
         </nav>
         <div className="flex w-full items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
-            <h1 className="flex-1 text-lg font-semibold md:text-2xl">Dashboard</h1>
+            <h1 className="flex-1 text-lg font-semibold md:text-2xl">Submit a Request</h1>
           <div className="ml-auto flex-initial">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -58,7 +56,7 @@ export default async function DashboardPage() {
                     <div className="font-normal text-xs text-muted-foreground">{userRole}</div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <form action={logout}>
+                 <form action={logout}>
                     <Button type="submit" variant="ghost" className="w-full justify-start">
                         <LogOut className="mr-2 h-4 w-4"/>
                         Logout
@@ -69,8 +67,8 @@ export default async function DashboardPage() {
           </div>
         </div>
       </header>
-      <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-        <DashboardClient requests={requests} />
+      <main className="flex flex-1 flex-col items-center justify-center gap-4 p-4 md:gap-8 md:p-8">
+        <StudentDashboardClient />
       </main>
     </div>
   );

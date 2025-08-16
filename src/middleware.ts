@@ -34,6 +34,9 @@ export function middleware(request: NextRequest) {
         case 'floor_incharge':
             url.pathname = '/floor-incharge';
             break;
+        case 'student':
+            url.pathname = '/student';
+            break;
         default:
             url.pathname = '/login';
             break;
@@ -42,7 +45,8 @@ export function middleware(request: NextRequest) {
   }
 
   // If not logged in and trying to access a protected route, redirect to login
-  if (!session && (pathname.startsWith('/warden') || pathname.startsWith('/floor-incharge') || pathname === '/')) {
+  const protectedRoutes = ['/', '/warden', '/floor-incharge', '/student'];
+  if (!session && protectedRoutes.some(p => pathname.startsWith(p) && (pathname.length === p.length || pathname.charAt(p.length) === '/'))) {
     const url = request.nextUrl.clone();
     url.pathname = '/login';
     return NextResponse.redirect(url);
@@ -58,7 +62,10 @@ export function middleware(request: NextRequest) {
     }
     if (pathname.startsWith('/floor-incharge') && session.role !== 'floor_incharge') {
         return NextResponse.redirect(new URL('/login', request.url));
-   }
+    }
+    if (pathname.startsWith('/student') && session.role !== 'student') {
+        return NextResponse.redirect(new URL('/login', request.url));
+    }
   }
 
 
@@ -66,5 +73,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/', '/warden/:path*', '/floor-incharge/:path*', '/login'],
+  matcher: ['/', '/warden/:path*', '/floor-incharge/:path*', '/student/:path*', '/login'],
 };

@@ -3,10 +3,12 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
+import { Role } from '@/lib/types';
 
 const loginSchema = z.object({
   email: z.string().email(),
   password: z.string(),
+  role: z.enum(["admin", "warden", "floor_incharge", "student"]),
 });
 
 export type LoginState = {
@@ -16,9 +18,10 @@ export type LoginState = {
 
 // Mock users with different roles
 const users = {
-  'admin@dormfix.com': { password: 'adminpassword', role: 'admin' as const },
-  'warden.podhigai@dormfix.com': { password: 'wardenpassword', role: 'warden' as const, hostelName: 'Podhigai' },
-  'floor1.podhigai@dormfix.com': { password: 'floorpassword', role: 'floor_incharge' as const, hostelName: 'Podhigai', floor: '1' },
+    admin: { email: 'admin@gmail.com', password: '123456', role: 'admin' as const },
+    warden: { email: 'warden@gmail.com', password: '1234', role: 'warden' as const, hostelName: 'Podhigai' },
+    floor_incharge: { email: 'fincharge@gmail.com', password: '12345', role: 'floor_incharge' as const, hostelName: 'Podhigai', floor: '1' },
+    student: { email: 'student@gmail.com', password: '123', role: 'student' as const, hostelName: 'Podhigai', floor: '1', roomNumber: '101' },
 };
 
 
@@ -29,19 +32,20 @@ export async function login(
   const validatedFields = loginSchema.safeParse({
     email: formData.get('email'),
     password: formData.get('password'),
+    role: formData.get('role'),
   });
 
   if (!validatedFields.success) {
     return {
-      message: 'Invalid email or password format.',
+      message: 'Invalid form data.',
       success: false,
     };
   }
 
-  const { email, password } = validatedFields.data;
-  const user = users[email as keyof typeof users];
+  const { email, password, role } = validatedFields.data;
+  const user = users[role as keyof typeof users];
 
-  if (user && user.password === password) {
+  if (user && user.email === email && user.password === password) {
     const session = {
         email,
         role: user.role,
@@ -63,6 +67,8 @@ export async function login(
             redirect('/warden');
         case 'floor_incharge':
             redirect('/floor-incharge');
+        case 'student':
+            redirect('/student');
         default:
             redirect('/login');
     }
