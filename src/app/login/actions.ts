@@ -62,13 +62,13 @@ export async function login(
     
     switch (user.role) {
         case 'admin':
-            redirect('/');
+            redirect('/admin-dashboard');
         case 'warden':
-            redirect('/warden');
+            redirect('/warden-dashboard');
         case 'floor_incharge':
-            redirect('/floor-incharge');
+            redirect('/floorincharge-dashboard');
         case 'student':
-            redirect('/student');
+            redirect('/student-dashboard');
         default:
             redirect('/login');
     }
