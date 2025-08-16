@@ -14,10 +14,13 @@ export type LoginState = {
   success: boolean;
 };
 
-const ADMIN_EMAIL = 'admin1235@passmail.in';
-const ADMIN_PASSWORD = '12345!';
-const USER_EMAIL = 'user1235@passmail.in';
-const USER_PASSWORD = '123!';
+// Mock users with different roles
+const users = {
+  'admin@dormfix.com': { password: 'adminpassword', role: 'admin' as const },
+  'warden.podhigai@dormfix.com': { password: 'wardenpassword', role: 'warden' as const, hostelName: 'Podhigai' },
+  'floor1.podhigai@dormfix.com': { password: 'floorpassword', role: 'floor_incharge' as const, hostelName: 'Podhigai', floor: '1' },
+};
+
 
 export async function login(
   prevState: LoginState,
@@ -36,31 +39,32 @@ export async function login(
   }
 
   const { email, password } = validatedFields.data;
-  let role: 'admin' | 'user' | null = null;
-  let success = false;
-  let redirectPath: string | null = null;
+  const user = users[email as keyof typeof users];
 
-  if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-    role = 'admin';
-    success = true;
-    redirectPath = '/';
-  } else if (email === USER_EMAIL && password === USER_PASSWORD) {
-    role = 'user';
-    success = true;
-    redirectPath = '/user';
-  }
+  if (user && user.password === password) {
+    const session = {
+        email,
+        role: user.role,
+        hostelName: 'hostelName' in user ? user.hostelName : undefined,
+        floor: 'floor' in user ? user.floor : undefined,
+    };
 
-  if (success && role) {
-    const session = { email, role };
     cookies().set('session', JSON.stringify(session), {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       maxAge: 60 * 60 * 24, // 1 day
       path: '/',
     });
-
-    if (redirectPath) {
-      redirect(redirectPath);
+    
+    switch (user.role) {
+        case 'admin':
+            redirect('/');
+        case 'warden':
+            redirect('/warden');
+        case 'floor_incharge':
+            redirect('/floor-incharge');
+        default:
+            redirect('/login');
     }
   }
 

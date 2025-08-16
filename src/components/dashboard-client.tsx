@@ -7,7 +7,7 @@ import { saveAs } from 'file-saver';
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, Table, TableRow, TableCell, WidthType, BorderStyle } from 'docx';
 import { format } from 'date-fns';
 
-import { MaintenanceRequest, MaintenanceCategory, MaintenancePriority, MaintenanceStatus, categories, priorities, statuses } from '@/lib/types';
+import { MaintenanceRequest, MaintenanceCategory, MaintenancePriority, MaintenanceStatus, categories, priorities, statuses, hostels, HostelName } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -21,6 +21,9 @@ import { detectDuplicateRequests } from '@/ai/flows/detect-duplicate-requests';
 
 interface DashboardClientProps {
   requests: MaintenanceRequest[];
+  title?: string;
+  userHostel?: HostelName;
+  userFloor?: string;
 }
 
 const statusIcons: { [key in MaintenanceStatus]: React.ReactNode } = {
@@ -32,8 +35,9 @@ const statusIcons: { [key in MaintenanceStatus]: React.ReactNode } = {
 const generateReport = (requestsToReport: MaintenanceRequest[]) => {
   const tableHeader = new TableRow({
     children: [
-      new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Room Number', bold: true })] })] }),
       new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Hostel Name', bold: true })] })] }),
+      new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Floor', bold: true })] })] }),
+      new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Room Number', bold: true })] })] }),
       new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Category', bold: true })] })] }),
       new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Priority', bold: true })] })] }),
       new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Description', bold: true })] })] }),
@@ -44,8 +48,9 @@ const generateReport = (requestsToReport: MaintenanceRequest[]) => {
 
   const tableRows = requestsToReport.map(req => new TableRow({
     children: [
-      new TableCell({ children: [new Paragraph(req.roomNumber)] }),
       new TableCell({ children: [new Paragraph(req.hostelName)] }),
+      new TableCell({ children: [new Paragraph(req.floor)] }),
+      new TableCell({ children: [new Paragraph(req.roomNumber)] }),
       new TableCell({ children: [new Paragraph(req.category)] }),
       new TableCell({ children: [new Paragraph(req.priority)] }),
       new TableCell({ children: [new Paragraph(req.description)] }),
@@ -94,6 +99,8 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialReq
   const [requests, setRequests] = useState(() => initialRequests.map(r => ({...r, createdDate: new Date(r.createdDate)})));
   const [filters, setFilters] = useState({
     roomNumber: '',
+    hostelName: 'all',
+    floor: '',
     category: 'all',
     priority: 'all',
     status: 'all',
@@ -128,7 +135,6 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialReq
         setRequests(requestsWithDuplicates);
       } catch (error) {
         console.error("Failed to run duplicate detection:", error);
-        // Fallback to initial requests if AI call fails
         setRequests(initialRequests.map(r => ({...r, createdDate: new Date(r.createdDate)})));
       }
     };
@@ -140,6 +146,8 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialReq
     return requests.filter(req => {
       return (
         (filters.roomNumber === '' || req.roomNumber.includes(filters.roomNumber)) &&
+        (filters.hostelName === 'all' || req.hostelName === filters.hostelName) &&
+        (filters.floor === '' || req.floor.includes(filters.floor)) &&
         (filters.category === 'all' || req.category === filters.category) &&
         (filters.priority === 'all' || req.priority === filters.priority) &&
         (filters.status === 'all' || req.status === filters.status)
@@ -269,20 +277,21 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialReq
                     </Button>
                 </div>
             </div>
-            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                 <Input placeholder="Filter by Room #" value={filters.roomNumber} onChange={e => setFilters({...filters, roomNumber: e.target.value})} />
+                <Select value={filters.hostelName} onValueChange={v => setFilters({...filters, hostelName: v})}>
+                    <SelectTrigger><SelectValue placeholder="Filter by Hostel" /></SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All Hostels</SelectItem>
+                        {hostels.map(h => <SelectItem key={h} value={h}>{h}</SelectItem>)}
+                    </SelectContent>
+                </Select>
+                <Input placeholder="Filter by Floor #" value={filters.floor} onChange={e => setFilters({...filters, floor: e.target.value})} />
                 <Select value={filters.category} onValueChange={v => setFilters({...filters, category: v})}>
                     <SelectTrigger><SelectValue placeholder="Filter by Category" /></SelectTrigger>
                     <SelectContent>
                         <SelectItem value="all">All Categories</SelectItem>
                         {categories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                    </SelectContent>
-                </Select>
-                <Select value={filters.priority} onValueChange={v => setFilters({...filters, priority: v})}>
-                    <SelectTrigger><SelectValue placeholder="Filter by Priority" /></SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">All Priorities</SelectItem>
-                        {priorities.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
                     </SelectContent>
                 </Select>
                 <Select value={filters.status} onValueChange={v => setFilters({...filters, status: v})}>
@@ -300,6 +309,7 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialReq
                 <TableHeader>
                   <UiTableRow>
                     <TableHead>Hostel</TableHead>
+                    <TableHead className="w-[80px]">Floor</TableHead>
                     <TableHead className="w-[100px]">Room</TableHead>
                     <TableHead>Category</TableHead>
                     <TableHead>Priority</TableHead>
@@ -312,6 +322,7 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialReq
                   {filteredRequests.length > 0 ? filteredRequests.map(req => (
                     <UiTableRow key={req.id}>
                        <UiTableCell>{req.hostelName}</UiTableCell>
+                       <UiTableCell>{req.floor}</UiTableCell>
                       <UiTableCell className="font-medium">{req.roomNumber}</UiTableCell>
                       <UiTableCell>
                         <div className="flex items-center gap-2">
@@ -353,7 +364,7 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialReq
                     </UiTableRow>
                   )) : (
                     <UiTableRow>
-                      <UiTableCell colSpan={7} className="text-center">No requests found.</UiTableCell>
+                      <UiTableCell colSpan={8} className="text-center">No requests found.</UiTableCell>
                     </UiTableRow>
                   )}
                 </TableBody>
@@ -366,5 +377,3 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialReq
     </TooltipProvider>
   );
 };
-
-    

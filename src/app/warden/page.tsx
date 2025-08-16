@@ -14,16 +14,18 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { getRequests } from "@/lib/data";
 import { DashboardClient } from "@/components/dashboard-client";
-import { logout } from "./login/actions";
+import { logout } from "../login/actions";
 import { cookies } from 'next/headers';
 
 
-export default async function DashboardPage() {
-  const requests = await getRequests();
+export default async function WardenDashboardPage() {
   const sessionCookie = cookies().get('session');
   const session = sessionCookie ? JSON.parse(sessionCookie.value) : null;
   const userEmail = session?.email || 'My Account';
-  const userRole = session?.role || 'Admin';
+  const userRole = session?.role || 'Warden';
+  const userHostel = session?.hostelName;
+  
+  const requests = await getRequests({ hostelName: userHostel });
 
   return (
     <div className="flex min-h-screen w-full flex-col">
@@ -40,11 +42,11 @@ export default async function DashboardPage() {
             href="#"
             className="text-foreground transition-colors hover:text-foreground"
           >
-            Admin Dashboard
+            Warden Dashboard
           </a>
         </nav>
         <div className="flex w-full items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
-            <h1 className="flex-1 text-lg font-semibold md:text-2xl">Dashboard</h1>
+            <h1 className="flex-1 text-lg font-semibold md:text-2xl">{userHostel} Hostel</h1>
           <div className="ml-auto flex-initial">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

@@ -32,7 +32,7 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { createRequest } from '@/app/user/actions';
+import { createRequest } from '@/app/floor-incharge/actions';
 import { categories, priorities, createRequestSchema, hostels } from '@/lib/types';
 
 interface NewRequestDialogProps {
@@ -47,6 +47,7 @@ export function NewRequestDialog({ open, onOpenChange }: NewRequestDialogProps) 
     resolver: zodResolver(createRequestSchema),
     defaultValues: {
       hostelName: undefined,
+      floor: '',
       roomNumber: '',
       category: undefined,
       priority: undefined,
@@ -115,6 +116,19 @@ export function NewRequestDialog({ open, onOpenChange }: NewRequestDialogProps) 
                 </FormItem>
               )}
             />
+             <FormField
+              control={form.control}
+              name="floor"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Floor</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g., 1, 2, G" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="roomNumber"
@@ -122,7 +136,7 @@ export function NewRequestDialog({ open, onOpenChange }: NewRequestDialogProps) 
                 <FormItem>
                   <FormLabel>Room Number</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., 404" {...field} />
+                    <Input placeholder="e.g., 101" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -202,7 +216,7 @@ export function NewRequestDialog({ open, onOpenChange }: NewRequestDialogProps) 
 
             <DialogFooter>
               <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
-              <Button type="submit" onClick={form.handleSubmit(() => {})}>
+              <Button type="submit">
                 Submit Request
               </Button>
             </DialogFooter>

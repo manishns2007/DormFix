@@ -12,6 +12,7 @@ export async function createRequest(
 ): Promise<CreateRequestState> {
   const validatedFields = createRequestSchema.safeParse({
     hostelName: formData.get('hostelName'),
+    floor: formData.get('floor'),
     roomNumber: formData.get('roomNumber'),
     category: formData.get('category'),
     priority: formData.get('priority'),
@@ -39,7 +40,7 @@ export async function createRequest(
       imageUrl: formData.get('photo') ? 'https://placehold.co/400x300.png' : undefined,
     });
     
-    revalidatePath('/user');
+    revalidatePath('/floor-incharge');
     revalidatePath('/');
     return { message: `Request submitted successfully. Predicted urgency: ${urgency}.`, success: true };
 

@@ -13,14 +13,20 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { logout } from "../login/actions";
-import { UserDashboardClient } from "@/components/user-dashboard-client";
 import { cookies } from "next/headers";
+import { getRequests } from "@/lib/data";
+import { FloorInchargeDashboardClient } from "@/components/floor-incharge-dashboard-client";
 
 
-export default async function UserDashboardPage() {
+export default async function FloorInchargeDashboardPage() {
   const sessionCookie = cookies().get('session');
   const session = sessionCookie ? JSON.parse(sessionCookie.value) : null;
   const userEmail = session?.email || 'My Account';
+  const userRole = session?.role || 'Floor In-Charge';
+  const userHostel = session?.hostelName;
+  const userFloor = session?.floor;
+
+  const requests = await getRequests({ hostelName: userHostel, floor: userFloor });
   
   return (
     <div className="flex min-h-screen w-full flex-col">
@@ -37,11 +43,13 @@ export default async function UserDashboardPage() {
             href="#"
             className="text-foreground transition-colors hover:text-foreground"
           >
-            User Dashboard
+            Floor In-Charge Dashboard
           </a>
         </nav>
         <div className="flex w-full items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
-            <h1 className="flex-1 text-lg font-semibold md:text-2xl">My Requests</h1>
+            <h1 className="flex-1 text-lg font-semibold md:text-2xl">
+              {userHostel} - Floor {userFloor}
+            </h1>
           <div className="ml-auto flex-initial">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -51,7 +59,10 @@ export default async function UserDashboardPage() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuLabel>{userEmail}</DropdownMenuLabel>
+                <DropdownMenuLabel>
+                    <div>{userEmail}</div>
+                    <div className="font-normal text-xs text-muted-foreground">{userRole}</div>
+                </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                  <form action={logout}>
                     <Button type="submit" variant="ghost" className="w-full justify-start">
@@ -65,10 +76,8 @@ export default async function UserDashboardPage() {
         </div>
       </header>
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-        <UserDashboardClient />
+        <FloorInchargeDashboardClient requests={requests} />
       </main>
     </div>
   );
 }
-
-    

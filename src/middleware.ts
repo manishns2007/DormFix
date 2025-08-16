@@ -1,9 +1,17 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { Role } from '@/lib/types';
+
+type Session = {
+    email: string;
+    role: Role;
+    hostelName?: string;
+    floor?: string;
+}
 
 export function middleware(request: NextRequest) {
   const sessionCookie = request.cookies.get('session');
-  let session;
+  let session: Session | null;
   
   try {
     session = sessionCookie ? JSON.parse(sessionCookie.value) : null;
@@ -16,12 +24,25 @@ export function middleware(request: NextRequest) {
   // If trying to access login page while logged in, redirect to respective dashboard
   if (session && pathname === '/login') {
     const url = request.nextUrl.clone();
-    url.pathname = session.role === 'admin' ? '/' : '/user';
+    switch (session.role) {
+        case 'admin':
+            url.pathname = '/';
+            break;
+        case 'warden':
+            url.pathname = '/warden';
+            break;
+        case 'floor_incharge':
+            url.pathname = '/floor-incharge';
+            break;
+        default:
+            url.pathname = '/login';
+            break;
+    }
     return NextResponse.redirect(url);
   }
 
   // If not logged in and trying to access a protected route, redirect to login
-  if (!session && (pathname.startsWith('/user') || pathname === '/')) {
+  if (!session && (pathname.startsWith('/warden') || pathname.startsWith('/floor-incharge') || pathname === '/')) {
     const url = request.nextUrl.clone();
     url.pathname = '/login';
     return NextResponse.redirect(url);
@@ -30,15 +51,14 @@ export function middleware(request: NextRequest) {
   // Role-based access control
   if (session) {
     if (pathname === '/' && session.role !== 'admin') {
-         const url = request.nextUrl.clone();
-         url.pathname = '/user';
-         return NextResponse.redirect(url);
+         return NextResponse.redirect(new URL('/login', request.url));
     }
-     if (pathname.startsWith('/user') && session.role !== 'user') {
-         const url = request.nextUrl.clone();
-         url.pathname = '/';
-         return NextResponse.redirect(url);
+    if (pathname.startsWith('/warden') && session.role !== 'warden') {
+        return NextResponse.redirect(new URL('/login', request.url));
     }
+    if (pathname.startsWith('/floor-incharge') && session.role !== 'floor_incharge') {
+        return NextResponse.redirect(new URL('/login', request.url));
+   }
   }
 
 
@@ -46,5 +66,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/', '/user/:path*', '/login'],
+  matcher: ['/', '/warden/:path*', '/floor-incharge/:path*', '/login'],
 };

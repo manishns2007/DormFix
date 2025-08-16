@@ -4,6 +4,7 @@ import { useActionState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { redirect } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -34,10 +35,16 @@ export function LoginForm() {
     },
   });
 
-  const [state, formAction] = useActionState(login, { message: '', success: false });
+  const [state, formAction, isPending] = useActionState(login, { message: '', success: false });
 
   useEffect(() => {
-    if (!state.success && state.message && form.formState.isSubmitted) {
+    if (state.success) {
+      toast({
+        title: 'Login Successful',
+        description: 'Redirecting to your dashboard...',
+      });
+      // The redirect is now handled in the server action
+    } else if (state.message && form.formState.isSubmitted) {
       toast({
         title: 'Login Failed',
         description: state.message,
@@ -80,8 +87,8 @@ export function LoginForm() {
             </FormItem>
           )}
         />
-        <Button type="submit" className="w-full">
-          Sign In
+        <Button type="submit" className="w-full" disabled={isPending}>
+          {isPending ? 'Signing In...' : 'Sign In'}
         </Button>
       </form>
     </Form>

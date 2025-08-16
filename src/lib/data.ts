@@ -1,11 +1,12 @@
 'use server';
 
-import { MaintenanceRequest, MaintenanceCategory, MaintenancePriority, MaintenanceStatus, HostelName } from './types';
+import { MaintenanceRequest, HostelName } from './types';
 
 let requests: MaintenanceRequest[] = [
   {
     id: 'REQ-001',
     hostelName: 'Podhigai',
+    floor: '1',
     roomNumber: '101',
     category: 'Plumbing',
     priority: 'High',
@@ -17,6 +18,7 @@ let requests: MaintenanceRequest[] = [
   {
     id: 'REQ-002',
     hostelName: 'Vaigai',
+    floor: '2',
     roomNumber: '205',
     category: 'Electrical',
     priority: 'High',
@@ -28,6 +30,7 @@ let requests: MaintenanceRequest[] = [
   {
     id: 'REQ-003',
     hostelName: 'Thamirabarani',
+    floor: '3',
     roomNumber: '310',
     category: 'AC',
     priority: 'Medium',
@@ -39,6 +42,7 @@ let requests: MaintenanceRequest[] = [
   {
     id: 'REQ-004',
     hostelName: 'Podhigai',
+    floor: '1',
     roomNumber: '101',
     category: 'Plumbing',
     priority: 'High',
@@ -51,6 +55,7 @@ let requests: MaintenanceRequest[] = [
   {
     id: 'REQ-005',
     hostelName: 'Kaveri',
+    floor: '4',
     roomNumber: '415',
     category: 'Furniture',
     priority: 'Low',
@@ -62,6 +67,7 @@ let requests: MaintenanceRequest[] = [
   {
     id: 'REQ-006',
     hostelName: 'Amaravathi',
+    floor: 'G',
     roomNumber: 'G-Lobby',
     category: 'Lift',
     priority: 'High',
@@ -72,8 +78,9 @@ let requests: MaintenanceRequest[] = [
   },
   {
     id: 'REQ-007',
-    hostelName: 'Paalar',
-    roomNumber: '520',
+    hostelName: 'Podhigai',
+    floor: '2',
+    roomNumber: '220',
     category: 'Electrical',
     priority: 'High',
     description: 'I saw sparks from the power outlet near my bed.',
@@ -83,10 +90,20 @@ let requests: MaintenanceRequest[] = [
   },
 ];
 
-export async function getRequests(): Promise<MaintenanceRequest[]> {
-  // In a real app, you'd fetch this from a database.
+export async function getRequests(filters?: { hostelName?: HostelName, floor?: string }): Promise<MaintenanceRequest[]> {
+  // In a real app, you'd fetch this from a database with proper filtering.
+  let filteredRequests = requests;
+
+  if (filters?.hostelName) {
+    filteredRequests = filteredRequests.filter(r => r.hostelName === filters.hostelName);
+  }
+
+  if (filters?.floor) {
+    filteredRequests = filteredRequests.filter(r => r.floor === filters.floor);
+  }
+
   // Sorting by date descending to show newest first.
-  return Promise.resolve(requests.sort((a, b) => b.createdDate.getTime() - a.createdDate.getTime()));
+  return Promise.resolve(filteredRequests.sort((a, b) => b.createdDate.getTime() - a.createdDate.getTime()));
 }
 
 export async function addRequest(request: Omit<MaintenanceRequest, 'id' | 'createdDate'>) {
