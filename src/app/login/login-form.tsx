@@ -50,14 +50,14 @@ export function LoginForm() {
   const [state, formAction, isPending] = useActionState(login, { message: '', success: false });
 
   useEffect(() => {
-    if (state.message && form.formState.isSubmitted && !state.success) {
+    if (state.message && !state.success) {
       toast({
         title: 'Login Failed',
         description: state.message,
         variant: 'destructive',
       });
     }
-  }, [state, toast, form.formState.isSubmitted]);
+  }, [state, toast]);
 
 
   return (
@@ -76,7 +76,7 @@ export function LoginForm() {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {roles.filter(r => r !== 'user').map((role) => (
+                  {roles.map((role) => (
                     <SelectItem key={role} value={role}>
                       {roleDisplayNames[role as keyof typeof roleDisplayNames]}
                     </SelectItem>

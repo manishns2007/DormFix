@@ -70,11 +70,12 @@ export async function login(
         case 'student':
             redirect('/student-dashboard');
         default:
+            // This default should ideally not be reached if roles are validated
             redirect('/login');
     }
   }
 
-  return { message: 'Invalid credentials.', success: false };
+  return { message: 'Invalid credentials. Please try again.', success: false };
 }
 
 export async function logout() {
