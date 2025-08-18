@@ -78,14 +78,14 @@ export function NewRequestDialog({ open, onOpenChange }: NewRequestDialogProps) 
   });
 
   useEffect(() => {
-    if (state.message && form.formState.isSubmitted) {
+    if (state && state.message && form.formState.isSubmitted) {
       toast({
         title: state.success ? 'Success' : 'Error',
         description: state.message,
         variant: state.success ? 'default' : 'destructive',
       });
     }
-    if (state.success) {
+    if (state && state.success) {
       onOpenChange(false);
       form.reset();
     }
