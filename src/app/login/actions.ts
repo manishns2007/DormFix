@@ -5,15 +5,9 @@ import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { addRequest } from '@/lib/data';
-import { createRequestSchema, type CreateRequestState } from '@/lib/types';
+import { createRequestSchema, type CreateRequestState, loginSchema } from '@/lib/types';
 import { predictRequestUrgency } from '@/ai/flows/predict-request-urgency';
 
-
-const loginSchema = z.object({
-  email: z.string().email(),
-  password: z.string(),
-  role: z.enum(["admin", "user"]),
-});
 
 export type LoginState = {
   message: string;
@@ -21,10 +15,10 @@ export type LoginState = {
 };
 
 // Mock users with different roles
-const users = {
-    admin: { email: 'admin1235@passmail.in', password: '12345!', role: 'admin' as const },
-    user: { email: 'user1235@passmail.in', password: '123!', role: 'user' as const },
-};
+const users = [
+    { email: 'admin1235@passmail.in', password: '12345!', role: 'admin' as const },
+    { email: 'user1235@passmail.in', password: '123!', role: 'user' as const },
+];
 
 
 export async function login(
@@ -42,10 +36,11 @@ export async function login(
     };
   }
 
-  const { email, password, role } = validatedFields.data;
-  const user = users[role as keyof typeof users];
+  const { email, password } = validatedFields.data;
+  
+  const user = users.find(u => u.email === email && u.password === password);
 
-  if (user && user.email === email && user.password === password) {
+  if (user) {
     const session = {
         email,
         role: user.role,
@@ -64,7 +59,6 @@ export async function login(
         case 'user':
             redirect('/user-dashboard');
         default:
-            // This default should ideally not be reached if roles are validated
             redirect('/login');
     }
   }

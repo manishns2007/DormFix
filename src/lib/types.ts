@@ -33,6 +33,12 @@ export interface MaintenanceRequest {
   isDuplicate?: boolean;
 }
 
+export const loginSchema = z.object({
+  email: z.string().email('Please enter a valid email address.'),
+  password: z.string().min(1, 'Password is required.'),
+});
+
+
 export const createRequestSchema = z.object({
   hostelName: z.enum(hostels, { required_error: 'Hostel name is required.' }),
   floor: z.string().min(1, 'Floor is required.'),
