@@ -59,12 +59,10 @@ export default async function UserDashboardPage() {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                  <form action={logout}>
-                  <DropdownMenuItem asChild>
                     <Button type="submit" variant="ghost" className="w-full justify-start">
                         <LogOut className="mr-2 h-4 w-4"/>
                         Logout
                     </Button>
-                  </DropdownMenuItem>
                 </form>
               </DropdownMenuContent>
             </DropdownMenu>
