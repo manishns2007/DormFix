@@ -21,6 +21,10 @@ import { NewRequestDialog } from '@/components/new-request-dialog';
 import { CategoryIcon } from './icons';
 import { detectDuplicateRequests } from '@/ai/flows/detect-duplicate-requests';
 
+type MaintenanceRequestWithDate = Omit<MaintenanceRequest, 'createdDate'> & {
+    createdDate: Date;
+};
+
 interface DashboardClientProps {
   requests: MaintenanceRequest[];
   title?: string;
@@ -34,7 +38,7 @@ const statusIcons: { [key in MaintenanceStatus]: React.ReactNode } = {
   Resolved: <CheckCircle2 className="h-4 w-4 text-muted-foreground" />,
 };
 
-const generateReport = (requestsToReport: MaintenanceRequest[]) => {
+const generateReport = (requestsToReport: MaintenanceRequestWithDate[]) => {
   const tableHeader = new TableRow({
     children: [
       new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Hostel Name', bold: true })] })] }),
@@ -97,7 +101,7 @@ const generateReport = (requestsToReport: MaintenanceRequest[]) => {
   });
 };
 
-const generateExcelReport = (requestsToReport: MaintenanceRequest[]) => {
+const generateExcelReport = (requestsToReport: MaintenanceRequestWithDate[]) => {
   const worksheetData = requestsToReport.map(req => ({
     'Hostel Name': req.hostelName,
     'Room Number': req.roomNumber,
@@ -129,7 +133,7 @@ const generateExcelReport = (requestsToReport: MaintenanceRequest[]) => {
 };
 
 export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialRequests }) => {
-  const [requests, setRequests] = useState<MaintenanceRequest[]>([]);
+  const [requests, setRequests] = useState<MaintenanceRequestWithDate[]>([]);
   const [filters, setFilters] = useState({
     roomNumber: '',
     hostelName: 'all',

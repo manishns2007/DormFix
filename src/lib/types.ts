@@ -1,3 +1,4 @@
+
 import { z } from 'zod';
 
 export const categories = ["AC", "Plumbing", "Electrical", "Furniture and Door", "Lift", "Water", "Water Dispenser"] as const;
@@ -29,7 +30,7 @@ export interface MaintenanceRequest {
   priority: MaintenancePriority;
   description: string;
   status: MaintenanceStatus;
-  createdDate: Date;
+  createdDate: string; // Changed to string to match server serialization
   imageUrl?: string;
   urgency: Urgency;
   isDuplicate?: boolean;
