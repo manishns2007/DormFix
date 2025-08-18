@@ -11,7 +11,7 @@ import * as XLSX from 'xlsx';
 
 import { MaintenanceRequest, MaintenanceCategory, MaintenancePriority, MaintenanceStatus, categories, priorities, statuses, hostels, HostelName } from '@/lib/types';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table as UiTable, TableBody, TableCell as UiTableCell, TableHead, TableHeader, TableRow as UiTableRow } from '@/components/ui/table';
@@ -278,6 +278,7 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialReq
           <Card className="lg:col-span-3">
              <CardHeader>
               <CardTitle>Summary</CardTitle>
+              <CardDescription>AI-powered insights at a glance.</CardDescription>
             </CardHeader>
             <CardContent className="grid gap-4">
                 <div className="flex items-center gap-4 p-4 rounded-lg bg-red-50 border border-red-200 dark:bg-red-950 dark:border-red-800">
@@ -301,7 +302,10 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialReq
         <Card>
           <CardHeader>
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                <CardTitle>Maintenance Requests</CardTitle>
+                <div>
+                  <CardTitle>Maintenance Requests</CardTitle>
+                  <CardDescription>View, filter, and manage all requests.</CardDescription>
+                </div>
                 <div className="flex flex-col md:flex-row items-stretch md:items-center gap-2 w-full md:w-auto">
                     <Button onClick={() => generateReport(filteredRequests)} variant="outline">
                         <Download className="mr-2 h-4 w-4" /> DOCX Report
@@ -314,7 +318,7 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialReq
                     </Button>
                 </div>
             </div>
-            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                 <Input placeholder="Filter by Room #" value={filters.roomNumber} onChange={e => setFilters({...filters, roomNumber: e.target.value})} />
                 <Select value={filters.hostelName} onValueChange={v => setFilters({...filters, hostelName: v})}>
                     <SelectTrigger><SelectValue placeholder="Filter by Hostel" /></SelectTrigger>
