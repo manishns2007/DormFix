@@ -1,3 +1,4 @@
+
 import {
   CircleUser,
   Wrench,
@@ -7,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
@@ -59,10 +61,12 @@ export default async function DashboardPage() {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <form action={logout}>
+                  <DropdownMenuItem asChild>
                     <Button type="submit" variant="ghost" className="w-full justify-start">
                         <LogOut className="mr-2 h-4 w-4"/>
                         Logout
                     </Button>
+                  </DropdownMenuItem>
                 </form>
               </DropdownMenuContent>
             </DropdownMenu>
