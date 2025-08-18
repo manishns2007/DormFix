@@ -29,11 +29,9 @@ export async function login(
   prevState: LoginState,
   formData: FormData
 ): Promise<LoginState> {
-  const validatedFields = loginSchema.safeParse({
-    email: formData.get('email'),
-    password: formData.get('password'),
-    role: formData.get('role'),
-  });
+  const validatedFields = loginSchema.safeParse(
+    Object.fromEntries(formData.entries())
+  );
 
   if (!validatedFields.success) {
     return {
