@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, FC, useEffect } from 'react';
@@ -96,7 +97,7 @@ const generateReport = (requestsToReport: MaintenanceRequest[]) => {
 };
 
 export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialRequests }) => {
-  const [requests, setRequests] = useState(() => initialRequests.map(r => ({...r, createdDate: new Date(r.createdDate)})));
+  const [requests, setRequests] = useState<MaintenanceRequest[]>([]);
   const [filters, setFilters] = useState({
     roomNumber: '',
     hostelName: 'all',
@@ -108,8 +109,9 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialReq
   const [isNewRequestOpen, setIsNewRequestOpen] = useState(false);
 
   useEffect(() => {
-    const runDuplicateDetection = async () => {
+    const processRequests = async () => {
       if (!initialRequests || initialRequests.length === 0) {
+        setRequests([]);
         return;
       }
       
@@ -125,7 +127,7 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialReq
       };
 
       try {
-        const { duplicateGroups } = await detectDuplicateRequests(aiInput);
+        const { duplicateGroups = [] } = await detectDuplicateRequests(aiInput) || {};
         const allDuplicateIndices = new Set(duplicateGroups.flat());
         const requestsWithDuplicates = initialRequests.map((req, index) => ({
           ...req,
@@ -139,7 +141,7 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialReq
       }
     };
 
-    runDuplicateDetection();
+    processRequests();
   }, [initialRequests]);
 
   const filteredRequests = useMemo(() => {
@@ -377,3 +379,5 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialReq
     </TooltipProvider>
   );
 };
+
+    
