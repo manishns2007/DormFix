@@ -110,7 +110,7 @@ export async function createRequest(
     
     revalidatePath('/user-dashboard');
     revalidatePath('/admin-dashboard');
-    return { message: `Request submitted successfully. Predicted urgency: ${urgency}.`, success: true };
+    return { message: `Request submitted successfully.`, success: true };
 
   } catch (error) {
     console.error('Error creating request:', error);
