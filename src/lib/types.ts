@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const categories = ["AC", "Plumbing", "Electrical", "Furniture", "Lift"] as const;
+export const categories = ["AC", "Plumbing", "Electrical", "Furniture", "Lift", "Water"] as const;
 export type MaintenanceCategory = (typeof categories)[number];
 
 export const priorities = ["Low", "Medium", "High"] as const;

@@ -33,7 +33,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { createRequest } from '@/app/login/actions';
-import { categories, priorities, createRequestSchema, hostels } from '@/lib/types';
+import { categories, createRequestSchema, hostels, MaintenanceCategory } from '@/lib/types';
 import { ScrollArea } from './ui/scroll-area';
 
 interface NewRequestDialogProps {
@@ -53,10 +53,24 @@ export function NewRequestDialog({ open, onOpenChange }: NewRequestDialogProps) 
       floor: '',
       roomNumber: '',
       category: undefined,
-      priority: undefined,
+      priority: 'Low', // Default to low, will be updated dynamically
       description: '',
     },
   });
+
+  const watchedCategory = form.watch('category');
+
+  useEffect(() => {
+    if (watchedCategory) {
+      const highPriorityCategories: MaintenanceCategory[] = ["Electrical", "Lift", "Water"];
+      if (highPriorityCategories.includes(watchedCategory)) {
+        form.setValue('priority', 'High');
+      } else {
+        form.setValue('priority', 'Low');
+      }
+    }
+  }, [watchedCategory, form]);
+
 
   const [state, formAction] = useActionState(createRequest, {
     message: '',
@@ -96,7 +110,7 @@ export function NewRequestDialog({ open, onOpenChange }: NewRequestDialogProps) 
         <ScrollArea className="max-h-[70vh] p-4">
           <Form {...form}>
             <form action={formAction} className="space-y-4">
-              <FormField
+               <FormField
                 control={form.control}
                 name="name"
                 render={({ field }) => (
@@ -198,30 +212,6 @@ export function NewRequestDialog({ open, onOpenChange }: NewRequestDialogProps) 
               />
               <FormField
                 control={form.control}
-                name="priority"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Priority</FormLabel>
-                     <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a priority level" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {priorities.map((p) => (
-                          <SelectItem key={p} value={p}>
-                            {p}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
                 name="description"
                 render={({ field }) => (
                   <FormItem>
@@ -237,6 +227,8 @@ export function NewRequestDialog({ open, onOpenChange }: NewRequestDialogProps) 
                   </FormItem>
                 )}
               />
+              {/* Hidden priority field */}
+              <input type="hidden" {...form.register('priority')} />
                <FormItem>
                   <FormLabel>Photo (Optional)</FormLabel>
                   <FormControl>
