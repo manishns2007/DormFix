@@ -2,7 +2,6 @@
 import {
   CircleUser,
   Wrench,
-  LogOut,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,9 +15,7 @@ import {
 import { getRequests } from "@/lib/data";
 import { cookies } from 'next/headers';
 import { LogoutButton } from "@/components/logout-button";
-import dynamic from "next/dynamic";
-
-const DashboardClientLoader = dynamic(() => import('@/components/dashboard-client-loader'), { ssr: false });
+import DashboardClientLoader from "@/components/dashboard-client-loader";
 
 
 export default async function DashboardPage() {
