@@ -379,5 +379,3 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialReq
     </TooltipProvider>
   );
 };
-
-    
