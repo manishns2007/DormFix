@@ -5,15 +5,11 @@ import { Role } from '@/lib/types';
 type Session = {
     email: string;
     role: Role;
-    hostelName?: string;
-    floor?: string;
 }
 
 const protectedRoutes = {
     '/admin-dashboard': 'admin',
-    '/warden-dashboard': 'warden',
-    '/floorincharge-dashboard': 'floor_incharge',
-    '/student-dashboard': 'student',
+    '/user-dashboard': 'user',
 };
 
 const protectedPaths = Object.keys(protectedRoutes);
@@ -37,14 +33,8 @@ export function middleware(request: NextRequest) {
         case 'admin':
             url.pathname = '/admin-dashboard';
             break;
-        case 'warden':
-            url.pathname = '/warden-dashboard';
-            break;
-        case 'floor_incharge':
-            url.pathname = '/floorincharge-dashboard';
-            break;
-        case 'student':
-            url.pathname = '/student-dashboard';
+        case 'user':
+            url.pathname = '/user-dashboard';
             break;
         default:
             url.pathname = '/login';
@@ -70,14 +60,8 @@ export function middleware(request: NextRequest) {
             case 'admin':
                 url.pathname = '/admin-dashboard';
                 break;
-            case 'warden':
-                url.pathname = '/warden-dashboard';
-                break;
-            case 'floor_incharge':
-                url.pathname = '/floorincharge-dashboard';
-                break;
-            case 'student':
-                url.pathname = '/student-dashboard';
+            case 'user':
+                url.pathname = '/user-dashboard';
                 break;
             default:
                 url.pathname = '/login';
@@ -99,5 +83,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/', '/admin-dashboard/:path*', '/warden-dashboard/:path*', '/floorincharge-dashboard/:path*', '/student-dashboard/:path*', '/login'],
+  matcher: ['/', '/admin-dashboard/:path*', '/user-dashboard/:path*', '/login'],
 };

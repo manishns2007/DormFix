@@ -32,7 +32,7 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { createRequest } from '@/app/floor-incharge/actions';
+import { createRequest } from '@/app/login/actions';
 import { categories, priorities, createRequestSchema, hostels } from '@/lib/types';
 
 interface NewRequestDialogProps {

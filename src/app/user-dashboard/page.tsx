@@ -13,14 +13,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { logout } from "../login/actions";
 import { cookies } from "next/headers";
-import { StudentDashboardClient } from "@/components/student-dashboard-client";
+import { UserDashboardClient } from "@/components/user-dashboard-client";
 
 
-export default async function StudentDashboardPage() {
+export default async function UserDashboardPage() {
   const sessionCookie = cookies().get('session');
   const session = sessionCookie ? JSON.parse(sessionCookie.value) : null;
   const userEmail = session?.email || 'My Account';
-  const userRole = session?.role || 'Student';
+  const userRole = session?.role || 'User';
 
   return (
     <div className="flex min-h-screen w-full flex-col">
@@ -37,7 +37,7 @@ export default async function StudentDashboardPage() {
             href="#"
             className="text-foreground transition-colors hover:text-foreground"
           >
-            Student Dashboard
+            User Dashboard
           </a>
         </nav>
         <div className="flex w-full items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
@@ -68,7 +68,7 @@ export default async function StudentDashboardPage() {
         </div>
       </header>
       <main className="flex flex-1 flex-col items-center justify-center gap-4 p-4 md:gap-8 md:p-8">
-        <StudentDashboardClient />
+        <UserDashboardClient />
       </main>
     </div>
   );

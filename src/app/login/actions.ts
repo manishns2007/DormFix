@@ -3,12 +3,16 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
-import { Role } from '@/lib/types';
+import { revalidatePath } from 'next/cache';
+import { addRequest } from '@/lib/data';
+import { createRequestSchema, type CreateRequestState } from '@/lib/types';
+import { predictRequestUrgency } from '@/ai/flows/predict-request-urgency';
+
 
 const loginSchema = z.object({
   email: z.string().email(),
   password: z.string(),
-  role: z.enum(["admin", "warden", "floor_incharge", "student"]),
+  role: z.enum(["admin", "user"]),
 });
 
 export type LoginState = {
@@ -18,10 +22,8 @@ export type LoginState = {
 
 // Mock users with different roles
 const users = {
-    admin: { email: 'admin@gmail.com', password: '123456', role: 'admin' as const },
-    warden: { email: 'warden@gmail.com', password: '1234', role: 'warden' as const, hostelName: 'Podhigai' },
-    floor_incharge: { email: 'fincharge@gmail.com', password: '12345', role: 'floor_incharge' as const, hostelName: 'Podhigai', floor: '1' },
-    student: { email: 'student@gmail.com', password: '123', role: 'student' as const, hostelName: 'Podhigai', floor: '1', roomNumber: '101' },
+    admin: { email: 'admin1235@passmail.in', password: '12345!', role: 'admin' as const },
+    user: { email: 'user1235@passmail.in', password: '123!', role: 'user' as const },
 };
 
 
@@ -47,8 +49,6 @@ export async function login(
     const session = {
         email,
         role: user.role,
-        hostelName: 'hostelName' in user ? user.hostelName : undefined,
-        floor: 'floor' in user ? user.floor : undefined,
     };
 
     cookies().set('session', JSON.stringify(session), {
@@ -61,12 +61,8 @@ export async function login(
     switch (user.role) {
         case 'admin':
             redirect('/admin-dashboard');
-        case 'warden':
-            redirect('/warden-dashboard');
-        case 'floor_incharge':
-            redirect('/floorincharge-dashboard');
-        case 'student':
-            redirect('/student-dashboard');
+        case 'user':
+            redirect('/user-dashboard');
         default:
             // This default should ideally not be reached if roles are validated
             redirect('/login');
@@ -79,4 +75,49 @@ export async function login(
 export async function logout() {
     cookies().delete('session');
     redirect('/login');
+}
+
+
+export async function createRequest(
+  prevState: CreateRequestState,
+  formData: FormData
+): Promise<CreateRequestState> {
+  const validatedFields = createRequestSchema.safeParse({
+    hostelName: formData.get('hostelName'),
+    floor: formData.get('floor'),
+    roomNumber: formData.get('roomNumber'),
+    category: formData.get('category'),
+    priority: formData.get('priority'),
+    description: formData.get('description'),
+  });
+
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: 'Validation failed. Please check the fields.',
+      success: false,
+    };
+  }
+  
+  const { category, description } = validatedFields.data;
+
+  try {
+    const { urgency } = await predictRequestUrgency({ category, description });
+
+    await addRequest({
+      ...validatedFields.data,
+      status: 'Submitted',
+      urgency,
+      // In a real app, you would handle image upload and get a URL here.
+      imageUrl: formData.get('photo') ? 'https://placehold.co/400x300.png' : undefined,
+    });
+    
+    revalidatePath('/user-dashboard');
+    revalidatePath('/admin-dashboard');
+    return { message: `Request submitted successfully. Predicted urgency: ${urgency}.`, success: true };
+
+  } catch (error) {
+    console.error('Error creating request:', error);
+    return { message: 'An error occurred while creating the request.', success: false };
+  }
 }

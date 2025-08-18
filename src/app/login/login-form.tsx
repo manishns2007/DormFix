@@ -23,16 +23,14 @@ import { roles } from '@/lib/types';
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email address.'),
   password: z.string().min(1, 'Password is required.'),
-  role: z.enum(["admin", "warden", "floor_incharge", "student"], {
+  role: z.enum(["admin", "user"], {
     required_error: 'You must select a role.',
   }),
 });
 
 const roleDisplayNames = {
     admin: "Admin",
-    warden: "Warden",
-    floor_incharge: "Floor Incharge",
-    student: "Student"
+    user: "User",
 }
 
 export function LoginForm() {

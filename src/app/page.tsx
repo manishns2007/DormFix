@@ -12,12 +12,8 @@ export default function HomePage() {
   switch (session.role) {
     case 'admin':
       redirect('/admin-dashboard');
-    case 'warden':
-      redirect('/warden-dashboard');
-    case 'floor_incharge':
-      redirect('/floorincharge-dashboard');
-    case 'student':
-      redirect('/student-dashboard');
+    case 'user':
+      redirect('/user-dashboard');
     default:
       redirect('/login');
   }
