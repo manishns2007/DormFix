@@ -2,12 +2,10 @@
 import {
   CircleUser,
   Wrench,
-  LogOut,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
-  DropdownMenuItem,
   DropdownMenuContent,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -15,9 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cookies } from "next/headers";
 import { LogoutButton } from "@/components/logout-button";
-import dynamic from "next/dynamic";
-
-const UserDashboardClientLoader = dynamic(() => import('@/components/user-dashboard-client-loader'), { ssr: false });
+import UserDashboardClientLoader from '@/components/user-dashboard-client-loader';
 
 
 export default async function UserDashboardPage() {
