@@ -1,5 +1,4 @@
 
-
 import {
   CircleUser,
   Wrench,
@@ -14,9 +13,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { logout } from "../login/actions";
 import { cookies } from "next/headers";
-import { UserDashboardClient } from "@/components/user-dashboard-client";
+import { LogoutButton } from "@/components/logout-button";
+import dynamic from "next/dynamic";
+
+const UserDashboardClientLoader = dynamic(() => import('@/components/user-dashboard-client-loader'), { ssr: false });
 
 
 export default async function UserDashboardPage() {
@@ -59,19 +60,14 @@ export default async function UserDashboardPage() {
                     <div className="font-normal text-xs text-muted-foreground">{userRole}</div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                 <form action={logout}>
-                    <Button type="submit" variant="ghost" className="w-full justify-start">
-                        <LogOut className="mr-2 h-4 w-4"/>
-                        Logout
-                    </Button>
-                </form>
+                <LogoutButton />
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
         </div>
       </header>
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-        <UserDashboardClient />
+        <UserDashboardClientLoader />
       </main>
     </div>
   );

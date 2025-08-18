@@ -1,3 +1,4 @@
+
 import {
   CircleUser,
   Wrench,
@@ -12,9 +13,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { getRequests } from "@/lib/data";
-import { DashboardClient } from "@/components/dashboard-client";
-import { logout } from "../login/actions";
 import { cookies } from 'next/headers';
+import { LogoutButton } from "@/components/logout-button";
+import dynamic from "next/dynamic";
+
+const DashboardClientLoader = dynamic(() => import('@/components/dashboard-client-loader'), { ssr: false });
 
 
 export default async function WardenDashboardPage() {
@@ -60,19 +63,14 @@ export default async function WardenDashboardPage() {
                     <div className="font-normal text-xs text-muted-foreground">{userRole}</div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <form action={logout}>
-                    <Button type="submit" variant="ghost" className="w-full justify-start">
-                        <LogOut className="mr-2 h-4 w-4"/>
-                        Logout
-                    </Button>
-                </form>
+                <LogoutButton />
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
         </div>
       </header>
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-        <DashboardClient requests={requests} />
+        <DashboardClientLoader requests={requests} />
       </main>
     </div>
   );

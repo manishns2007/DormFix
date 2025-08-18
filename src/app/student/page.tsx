@@ -1,3 +1,4 @@
+
 import {
   CircleUser,
   Wrench,
@@ -11,9 +12,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { logout } from "../login/actions";
 import { cookies } from "next/headers";
 import { StudentDashboardClient } from "@/components/student-dashboard-client";
+import { LogoutButton } from "@/components/logout-button";
 
 
 export default async function StudentDashboardPage() {
@@ -56,12 +57,7 @@ export default async function StudentDashboardPage() {
                     <div className="font-normal text-xs text-muted-foreground">{userRole}</div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                 <form action={logout}>
-                    <Button type="submit" variant="ghost" className="w-full justify-start">
-                        <LogOut className="mr-2 h-4 w-4"/>
-                        Logout
-                    </Button>
-                </form>
+                <LogoutButton />
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

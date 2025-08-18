@@ -163,14 +163,14 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialReq
       };
 
       try {
-        const { duplicateGroups = [] } = await detectDuplicateRequests(aiInput) || {};
+        const { duplicateGroups = [] } = (await detectDuplicateRequests(aiInput)) || {};
         const allDuplicateIndices = new Set(duplicateGroups.flat());
-        const requestsWithDuplicates = initialRequests.map((req, index) => ({
+        const requestsWithDates = initialRequests.map((req, index) => ({
           ...req,
           createdDate: new Date(req.createdDate),
           isDuplicate: allDuplicateIndices.has(index),
         }));
-        setRequests(requestsWithDuplicates);
+        setRequests(requestsWithDates);
       } catch (error) {
         console.error("Failed to run duplicate detection:", error);
         setRequests(initialRequests.map(r => ({...r, createdDate: new Date(r.createdDate)})));
