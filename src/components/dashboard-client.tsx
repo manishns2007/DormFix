@@ -3,10 +3,11 @@
 
 import { useState, useMemo, FC, useEffect } from 'react';
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
-import { PlusCircle, Download, Copy, ShieldAlert, BarChart3, ListTodo, Wrench, CheckCircle2 } from 'lucide-react';
+import { PlusCircle, Download, Copy, ShieldAlert, BarChart3, ListTodo, Wrench, CheckCircle2, FileSpreadsheet } from 'lucide-react';
 import { saveAs } from 'file-saver';
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, Table, TableRow, TableCell, WidthType, BorderStyle } from 'docx';
 import { format } from 'date-fns';
+import * as XLSX from 'xlsx';
 
 import { MaintenanceRequest, MaintenanceCategory, MaintenancePriority, MaintenanceStatus, categories, priorities, statuses, hostels, HostelName } from '@/lib/types';
 import { Button } from '@/components/ui/button';
@@ -94,6 +95,37 @@ const generateReport = (requestsToReport: MaintenanceRequest[]) => {
   Packer.toBlob(doc).then(blob => {
     saveAs(blob, `DormFix-Report-${format(new Date(), 'yyyy-MM-dd')}.docx`);
   });
+};
+
+const generateExcelReport = (requestsToReport: MaintenanceRequest[]) => {
+  const worksheetData = requestsToReport.map(req => ({
+    'Hostel Name': req.hostelName,
+    'Room Number': req.roomNumber,
+    Category: req.category,
+    Priority: req.priority,
+    Description: req.description,
+    Status: req.status,
+    'Created Date': format(new Date(req.createdDate), 'yyyy-MM-dd HH:mm:ss'),
+    'Assigned To': req.assignedTo || 'N/A',
+  }));
+
+  const worksheet = XLSX.utils.json_to_sheet(worksheetData);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Maintenance Requests');
+
+  // Set column widths
+  worksheet['!cols'] = [
+    { wch: 15 }, // Hostel Name
+    { wch: 15 }, // Room Number
+    { wch: 15 }, // Category
+    { wch: 10 }, // Priority
+    { wch: 50 }, // Description
+    { wch: 15 }, // Status
+    { wch: 20 }, // Created Date
+    { wch: 20 }, // Assigned To
+  ];
+
+  XLSX.writeFile(workbook, `DormFix-Excel-Report-${format(new Date(), 'yyyy-MM-dd')}.xlsx`);
 };
 
 export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialRequests }) => {
@@ -272,7 +304,10 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialReq
                 <CardTitle>Maintenance Requests</CardTitle>
                 <div className="flex flex-col md:flex-row items-stretch md:items-center gap-2 w-full md:w-auto">
                     <Button onClick={() => generateReport(filteredRequests)} variant="outline">
-                        <Download className="mr-2 h-4 w-4" /> Download Report
+                        <Download className="mr-2 h-4 w-4" /> DOCX Report
+                    </Button>
+                    <Button onClick={() => generateExcelReport(filteredRequests)} variant="outline">
+                        <FileSpreadsheet className="mr-2 h-4 w-4" /> Excel Report
                     </Button>
                     <Button onClick={() => setIsNewRequestOpen(true)}>
                         <PlusCircle className="mr-2 h-4 w-4" /> New Request
@@ -317,6 +352,7 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialReq
                     <TableHead>Priority</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Submitted</TableHead>
+                    <TableHead>Assigned To</TableHead>
                     <TableHead className="text-right">Flags</TableHead>
                   </UiTableRow>
                 </TableHeader>
@@ -339,6 +375,7 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialReq
                          <Badge variant="outline">{req.status}</Badge>
                       </UiTableCell>
                       <UiTableCell>{format(req.createdDate, 'PPP')}</UiTableCell>
+                      <UiTableCell>{req.assignedTo || 'Unassigned'}</UiTableCell>
                       <UiTableCell className="text-right">
                         <div className="flex items-center justify-end gap-2">
                           {(req.urgency === 'critical' || req.urgency === 'high') && (
@@ -366,7 +403,7 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialReq
                     </UiTableRow>
                   )) : (
                     <UiTableRow>
-                      <UiTableCell colSpan={8} className="text-center">No requests found.</UiTableCell>
+                      <UiTableCell colSpan={9} className="text-center">No requests found.</UiTableCell>
                     </UiTableRow>
                   )}
                 </TableBody>
