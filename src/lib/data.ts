@@ -5,6 +5,8 @@ import { MaintenanceRequest, HostelName } from './types';
 let requests: MaintenanceRequest[] = [
   {
     id: 'REQ-001',
+    name: 'Suresh Kumar',
+    registerNumber: 'URK20CS1120',
     hostelName: 'Podhigai',
     floor: '1',
     roomNumber: '101',
@@ -17,6 +19,8 @@ let requests: MaintenanceRequest[] = [
   },
   {
     id: 'REQ-002',
+    name: 'Priya Sharma',
+    registerNumber: 'URK20EC1121',
     hostelName: 'Vaigai',
     floor: '2',
     roomNumber: '205',
@@ -29,6 +33,8 @@ let requests: MaintenanceRequest[] = [
   },
   {
     id: 'REQ-003',
+    name: 'Anil Gupta',
+    registerNumber: 'URK20ME1122',
     hostelName: 'Thamirabarani',
     floor: '3',
     roomNumber: '310',
@@ -41,6 +47,8 @@ let requests: MaintenanceRequest[] = [
   },
   {
     id: 'REQ-004',
+    name: 'Suresh Kumar',
+    registerNumber: 'URK20CS1120',
     hostelName: 'Podhigai',
     floor: '1',
     roomNumber: '101',
@@ -54,6 +62,8 @@ let requests: MaintenanceRequest[] = [
   },
   {
     id: 'REQ-005',
+    name: 'Deepa Iyer',
+    registerNumber: 'URK20IT1123',
     hostelName: 'Kaveri',
     floor: '4',
     roomNumber: '415',
@@ -66,6 +76,8 @@ let requests: MaintenanceRequest[] = [
   },
   {
     id: 'REQ-006',
+    name: 'Vijay Singh',
+    registerNumber: 'URK20CE1124',
     hostelName: 'Amaravathi',
     floor: 'G',
     roomNumber: 'G-Lobby',
@@ -78,6 +90,8 @@ let requests: MaintenanceRequest[] = [
   },
   {
     id: 'REQ-007',
+    name: 'Ravi Verma',
+    registerNumber: 'URK20EE1125',
     hostelName: 'Podhigai',
     floor: '2',
     roomNumber: '220',

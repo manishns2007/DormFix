@@ -20,6 +20,8 @@ export type Urgency = "low" | "medium" | "high" | "critical" | null;
 
 export interface MaintenanceRequest {
   id: string;
+  name: string;
+  registerNumber: string;
   hostelName: HostelName;
   floor: string;
   roomNumber: string;
@@ -40,6 +42,8 @@ export const loginSchema = z.object({
 
 
 export const createRequestSchema = z.object({
+  name: z.string().min(1, 'Name is required.'),
+  registerNumber: z.string().min(1, 'Register number is required.'),
   hostelName: z.enum(hostels, { required_error: 'Hostel name is required.' }),
   floor: z.string().min(1, 'Floor is required.'),
   roomNumber: z.string().min(1, 'Room number is required.'),
@@ -51,6 +55,8 @@ export const createRequestSchema = z.object({
 export type CreateRequestState = {
   message?: string;
   errors?: {
+    name?: string[];
+    registerNumber?: string[];
     hostelName?: string[];
     floor?: string[];
     roomNumber?: string[];

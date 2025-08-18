@@ -77,6 +77,8 @@ export async function createRequest(
   formData: FormData
 ): Promise<CreateRequestState> {
   const validatedFields = createRequestSchema.safeParse({
+    name: formData.get('name'),
+    registerNumber: formData.get('registerNumber'),
     hostelName: formData.get('hostelName'),
     floor: formData.get('floor'),
     roomNumber: formData.get('roomNumber'),

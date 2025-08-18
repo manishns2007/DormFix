@@ -34,6 +34,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { createRequest } from '@/app/login/actions';
 import { categories, priorities, createRequestSchema, hostels } from '@/lib/types';
+import { ScrollArea } from './ui/scroll-area';
 
 interface NewRequestDialogProps {
   open: boolean;
@@ -46,6 +47,8 @@ export function NewRequestDialog({ open, onOpenChange }: NewRequestDialogProps) 
   const form = useForm<z.infer<typeof createRequestSchema>>({
     resolver: zodResolver(createRequestSchema),
     defaultValues: {
+      name: '',
+      registerNumber: '',
       hostelName: undefined,
       floor: '',
       roomNumber: '',
@@ -83,145 +86,173 @@ export function NewRequestDialog({ open, onOpenChange }: NewRequestDialogProps) 
   
   return (
     <Dialog open={open} onOpenChange={handleDialogClose}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>New Maintenance Request</DialogTitle>
           <DialogDescription>
             Fill in the details below to submit a new request. Click submit when you're done.
           </DialogDescription>
         </DialogHeader>
-        <Form {...form}>
-          <form action={formAction} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="hostelName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Hostel Name</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+        <ScrollArea className="max-h-[70vh] p-4">
+          <Form {...form}>
+            <form action={formAction} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Name</FormLabel>
                     <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a hostel" />
-                      </SelectTrigger>
+                      <Input placeholder="Enter your full name" {...field} />
                     </FormControl>
-                    <SelectContent>
-                      {hostels.map((h) => (
-                        <SelectItem key={h} value={h}>
-                          {h}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-             <FormField
-              control={form.control}
-              name="floor"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Floor</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g., 1, 2, G" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="roomNumber"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Room Number</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g., 101" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="category"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Category</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="registerNumber"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Register Number</FormLabel>
                     <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a category" />
-                      </SelectTrigger>
+                      <Input placeholder="Enter your register number" {...field} />
                     </FormControl>
-                    <SelectContent>
-                      {categories.map((c) => (
-                        <SelectItem key={c} value={c}>
-                          {c}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="priority"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Priority</FormLabel>
-                   <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="hostelName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Hostel Name</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a hostel" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {hostels.map((h) => (
+                          <SelectItem key={h} value={h}>
+                            {h}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+               <FormField
+                control={form.control}
+                name="floor"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Floor</FormLabel>
                     <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a priority level" />
-                      </SelectTrigger>
+                      <Input placeholder="e.g., 1, 2, G" {...field} />
                     </FormControl>
-                    <SelectContent>
-                      {priorities.map((p) => (
-                        <SelectItem key={p} value={p}>
-                          {p}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="roomNumber"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Room Number</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g., 101" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="category"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Category</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a category" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {categories.map((c) => (
+                          <SelectItem key={c} value={c}>
+                            {c}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="priority"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Priority</FormLabel>
+                     <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a priority level" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {priorities.map((p) => (
+                          <SelectItem key={p} value={p}>
+                            {p}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Describe the issue in detail"
+                        className="resize-none"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+               <FormItem>
+                  <FormLabel>Photo (Optional)</FormLabel>
                   <FormControl>
-                    <Textarea
-                      placeholder="Describe the issue in detail"
-                      className="resize-none"
-                      {...field}
-                    />
+                      <Input type="file" name="photo" accept="image/*" />
                   </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-             <FormItem>
-                <FormLabel>Photo (Optional)</FormLabel>
-                <FormControl>
-                    <Input type="file" name="photo" accept="image/*" />
-                </FormControl>
-            </FormItem>
+              </FormItem>
 
-            <DialogFooter>
-              <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
-              <Button type="submit">
-                Submit Request
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
+              <DialogFooter className="pt-4">
+                <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+                <Button type="submit">
+                  Submit Request
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );
