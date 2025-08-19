@@ -84,7 +84,7 @@ export function NewRequestDialog({ open, onOpenChange }: NewRequestDialogProps) 
       }
 
       const result = await createRequest(null, formData);
-      if (result.success) {
+      if (result?.success) {
         toast({
           title: 'Success',
           description: "Request submitted successfully.",
@@ -95,7 +95,7 @@ export function NewRequestDialog({ open, onOpenChange }: NewRequestDialogProps) 
       } else {
         toast({
           title: 'Error',
-          description: result.message || 'An error occurred.',
+          description: result?.message || 'An error occurred.',
           variant: 'destructive',
         });
       }
