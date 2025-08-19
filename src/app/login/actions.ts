@@ -15,14 +15,9 @@ export type LoginState = {
 };
 
 // Mock users with different roles
-const users: {email: string, password: string, role: Role, hostelName?: string, floor?: string}[] = [
-    { email: 'admin@dormfix.com', password: 'password', role: 'admin' },
-    { email: 'user@dormfix.com', password: 'password', role: 'user' },
-    { email: 'student@dormfix.com', password: 'password', role: 'student' },
-    { email: 'warden.podhigai@dormfix.com', password: 'password', role: 'warden', hostelName: 'Podhigai' },
-    { email: 'warden.vaigai@dormfix.com', password: 'password', role: 'warden', hostelName: 'Vaigai' },
-    { email: 'incharge.podhigai.1@dormfix.com', password: 'password', role: 'floor-incharge', hostelName: 'Podhigai', floor: '1' },
-    { email: 'incharge.podhigai.2@dormfix.com', password: 'password', role: 'floor-incharge', hostelName: 'Podhigai', floor: '2' },
+const users: {email: string, password: string, role: Role}[] = [
+    { email: 'admin1235@passmail.in', password: '12345!', role: 'admin' },
+    { email: 'user1235@passmail.in', password: '123!', role: 'user' },
 ];
 
 
@@ -49,8 +44,6 @@ export async function login(
     const session = {
         email,
         role: user.role,
-        hostelName: user.hostelName,
-        floor: user.floor,
     };
 
     cookies().set('session', JSON.stringify(session), {
@@ -65,12 +58,6 @@ export async function login(
             redirect('/admin-dashboard');
         case 'user':
             redirect('/user-dashboard');
-        case 'student':
-            redirect('/student');
-        case 'warden':
-            redirect('/warden');
-        case 'floor-incharge':
-            redirect('/floor-incharge');
         default:
             redirect('/login');
     }
@@ -123,7 +110,6 @@ export async function createRequest(
     
     revalidatePath('/user-dashboard');
     revalidatePath('/admin-dashboard');
-    revalidatePath('/student');
     return { message: `Request submitted successfully.`, success: true };
 
   } catch (error) {

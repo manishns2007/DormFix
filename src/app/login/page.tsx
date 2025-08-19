@@ -1,3 +1,4 @@
+
 import { Wrench } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { LoginForm } from './login-form';
@@ -13,7 +14,7 @@ export default function LoginPage() {
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">Welcome Back!</CardTitle>
           <CardDescription>
-            Sign in to access the maintenance dashboard
+            Sign in to access your dashboard
           </CardDescription>
         </CardHeader>
         <CardContent>
