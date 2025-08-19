@@ -111,6 +111,6 @@ export async function createRequest(
     if (error instanceof Error) {
         return { message: `AI prediction failed: ${error.message}`, success: false };
     }
-    return { message: 'An error occurred while creating the request.', success: false };
+    return { message: 'An unknown error occurred while creating the request.', success: false };
   }
 }

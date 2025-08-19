@@ -83,13 +83,13 @@ export function NewRequestDialog({ open, onOpenChange }: NewRequestDialogProps) 
           }
       }
 
-      // Handle file upload
       const photoFile = values.photo?.[0];
       
       const submitRequest = async (photoDataUri?: string) => {
         if (photoDataUri) {
           formData.append('photoDataUri', photoDataUri);
         }
+        
         try {
           const result = await createRequest(null, formData);
           
@@ -97,7 +97,6 @@ export function NewRequestDialog({ open, onOpenChange }: NewRequestDialogProps) 
             toast({
               title: 'Success',
               description: result.message || "Request submitted successfully.",
-              variant: 'default',
             });
             onOpenChange(false);
             form.reset();
@@ -110,23 +109,20 @@ export function NewRequestDialog({ open, onOpenChange }: NewRequestDialogProps) 
           }
         } catch (error) {
             toast({
-              title: 'Error',
-              description: 'Failed to submit the request. Please try again.',
+              title: 'Submission Failed',
+              description: 'An unexpected error occurred. Please try again.',
               variant: 'destructive',
             });
         }
       };
 
       if (photoFile) {
-        // Convert file to data URI
         const reader = new FileReader();
         reader.onloadend = async () => {
-          const photoDataUri = reader.result as string;
-          await submitRequest(photoDataUri);
+          await submitRequest(reader.result as string);
         };
         reader.readAsDataURL(photoFile);
       } else {
-        // Submit without a photo
         await submitRequest();
       }
     });
