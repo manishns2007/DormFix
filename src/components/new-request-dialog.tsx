@@ -56,6 +56,7 @@ export function NewRequestDialog({ open, onOpenChange }: NewRequestDialogProps) 
       category: undefined,
       priority: 'Low',
       description: '',
+      photo: undefined,
     },
   });
 
@@ -75,29 +76,59 @@ export function NewRequestDialog({ open, onOpenChange }: NewRequestDialogProps) 
   const onSubmit = (values: z.infer<typeof createRequestSchema>) => {
     startTransition(async () => {
       const formData = new FormData();
+      // Append all form values to formData
       for (const key in values) {
-        formData.append(key, (values as any)[key]);
-      }
-      const photoInput = document.querySelector('input[name="photo"]') as HTMLInputElement;
-      if (photoInput && photoInput.files && photoInput.files.length > 0) {
-        formData.append('photo', photoInput.files[0]);
+          if (key !== 'photo') {
+             formData.append(key, (values as any)[key]);
+          }
       }
 
-      const result = await createRequest(null, formData);
-      if (result?.success) {
-        toast({
-          title: 'Success',
-          description: "Request submitted successfully.",
-          variant: 'default',
-        });
-        onOpenChange(false);
-        form.reset();
+      // Handle file upload
+      const photoFile = values.photo?.[0];
+      if (photoFile) {
+        // Convert file to data URI
+        const reader = new FileReader();
+        reader.onloadend = async () => {
+            const photoDataUri = reader.result as string;
+            formData.append('photoDataUri', photoDataUri);
+
+            // Submit after file is read
+            const result = await createRequest(null, formData);
+            if (result?.success) {
+              toast({
+                title: 'Success',
+                description: "Request submitted successfully.",
+                variant: 'default',
+              });
+              onOpenChange(false);
+              form.reset();
+            } else {
+              toast({
+                title: 'Error',
+                description: result?.message || 'An error occurred.',
+                variant: 'destructive',
+              });
+            }
+        };
+        reader.readAsDataURL(photoFile);
       } else {
-        toast({
-          title: 'Error',
-          description: result?.message || 'An error occurred.',
-          variant: 'destructive',
-        });
+        // Submit without a photo
+        const result = await createRequest(null, formData);
+        if (result?.success) {
+          toast({
+            title: 'Success',
+            description: "Request submitted successfully.",
+            variant: 'default',
+          });
+          onOpenChange(false);
+          form.reset();
+        } else {
+          toast({
+            title: 'Error',
+            description: result?.message || 'An error occurred.',
+            variant: 'destructive',
+          });
+        }
       }
     });
   };
@@ -109,6 +140,8 @@ export function NewRequestDialog({ open, onOpenChange }: NewRequestDialogProps) 
     onOpenChange(isOpen);
   }
   
+  const photoRef = form.register('photo');
+
   return (
     <Dialog open={open} onOpenChange={handleDialogClose}>
       <DialogContent className="sm:max-w-lg">
@@ -240,12 +273,19 @@ export function NewRequestDialog({ open, onOpenChange }: NewRequestDialogProps) 
               />
               {/* Hidden priority field */}
               <input type="hidden" {...form.register('priority')} />
-               <FormItem>
-                  <FormLabel>Photo (Optional)</FormLabel>
-                  <FormControl>
-                      <Input type="file" name="photo" accept="image/*" />
-                  </FormControl>
-              </FormItem>
+               <FormField
+                control={form.control}
+                name="photo"
+                render={() => (
+                    <FormItem>
+                        <FormLabel>Photo (Optional)</FormLabel>
+                        <FormControl>
+                            <Input type="file" {...photoRef} accept="image/*" />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                )}
+               />
 
               <DialogFooter className="pt-4">
                 <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>

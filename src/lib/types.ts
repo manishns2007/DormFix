@@ -52,6 +52,7 @@ export const createRequestSchema = z.object({
   category: z.enum(categories, { required_error: 'Category is required.' }),
   priority: z.enum(priorities, { required_error: 'Priority is required.' }),
   description: z.string().min(10, 'Description must be at least 10 characters.'),
+  photo: z.any().optional(),
 });
 
 export type CreateRequestState = {
@@ -65,6 +66,7 @@ export type CreateRequestState = {
     category?: string[];
     priority?: string[];
     description?: string[];
+    photo?: string[];
   };
   success: boolean;
 };
