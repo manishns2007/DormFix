@@ -3,7 +3,7 @@
 
 import { useState, useMemo, FC, useEffect } from 'react';
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
-import { PlusCircle, Download, Copy, ShieldAlert, BarChart3, ListTodo, Wrench, CheckCircle2, FileSpreadsheet } from 'lucide-react';
+import { Trash2, Download, Copy, ShieldAlert, BarChart3, ListTodo, Wrench, CheckCircle2, FileSpreadsheet } from 'lucide-react';
 import { saveAs } from 'file-saver';
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, Table, TableRow, TableCell, WidthType, BorderStyle } from 'docx';
 import { format } from 'date-fns';
@@ -17,9 +17,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table as UiTable, TableBody, TableCell as UiTableCell, TableHead, TableHeader, TableRow as UiTableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip as UiTooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { NewRequestDialog } from '@/components/new-request-dialog';
 import { CategoryIcon } from './icons';
 import { detectDuplicateRequests } from '@/ai/flows/detect-duplicate-requests';
+import { Checkbox } from './ui/checkbox';
 
 type MaintenanceRequestWithDate = Omit<MaintenanceRequest, 'createdDate'> & {
     createdDate: Date;
@@ -142,7 +142,7 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialReq
     priority: 'all',
     status: 'all',
   });
-  const [isNewRequestOpen, setIsNewRequestOpen] = useState(false);
+  const [selectedRequestIds, setSelectedRequestIds] = useState<string[]>([]);
 
   useEffect(() => {
     const processRequests = async () => {
@@ -216,6 +216,25 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialReq
     }, {} as Record<MaintenanceCategory, number>);
     return Object.entries(counts).map(([name, value]) => ({ name, count: value }));
   }, [requests]);
+  
+  const handleSelectRequest = (id: string) => {
+    setSelectedRequestIds(prev =>
+      prev.includes(id) ? prev.filter(reqId => reqId !== id) : [...prev, id]
+    );
+  };
+
+  const handleSelectAll = (checked: boolean | 'indeterminate') => {
+    if (checked === true) {
+      setSelectedRequestIds(filteredRequests.map(req => req.id));
+    } else {
+      setSelectedRequestIds([]);
+    }
+  };
+  
+  const handleRemoveRequests = () => {
+    setRequests(prev => prev.filter(req => !selectedRequestIds.includes(req.id)));
+    setSelectedRequestIds([]);
+  };
 
   return (
     <TooltipProvider>
@@ -317,8 +336,12 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialReq
                     <Button onClick={() => generateExcelReport(filteredRequests)} variant="outline">
                         <FileSpreadsheet className="mr-2 h-4 w-4" /> Excel Report
                     </Button>
-                    <Button onClick={() => setIsNewRequestOpen(true)}>
-                        <PlusCircle className="mr-2 h-4 w-4" /> New Request
+                     <Button 
+                        onClick={handleRemoveRequests} 
+                        variant="destructive"
+                        disabled={selectedRequestIds.length === 0}
+                    >
+                        <Trash2 className="mr-2 h-4 w-4" /> Remove Request ({selectedRequestIds.length})
                     </Button>
                 </div>
             </div>
@@ -353,6 +376,16 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialReq
               <UiTable>
                 <TableHeader>
                   <UiTableRow>
+                     <TableHead className="w-[40px]">
+                       <Checkbox
+                          checked={
+                            selectedRequestIds.length > 0 &&
+                            selectedRequestIds.length === filteredRequests.length
+                          }
+                          onCheckedChange={handleSelectAll}
+                          aria-label="Select all"
+                        />
+                    </TableHead>
                     <TableHead>Hostel</TableHead>
                     <TableHead className="w-[80px]">Floor</TableHead>
                     <TableHead className="w-[100px]">Room</TableHead>
@@ -366,7 +399,14 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialReq
                 </TableHeader>
                 <TableBody>
                   {filteredRequests.length > 0 ? filteredRequests.map(req => (
-                    <UiTableRow key={req.id}>
+                    <UiTableRow key={req.id} data-state={selectedRequestIds.includes(req.id) && 'selected'}>
+                       <UiTableCell>
+                          <Checkbox
+                            checked={selectedRequestIds.includes(req.id)}
+                            onCheckedChange={() => handleSelectRequest(req.id)}
+                            aria-label={`Select request ${req.id}`}
+                          />
+                        </UiTableCell>
                        <UiTableCell>{req.hostelName}</UiTableCell>
                        <UiTableCell>{req.floor}</UiTableCell>
                       <UiTableCell className="font-medium">{req.roomNumber}</UiTableCell>
@@ -411,7 +451,7 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialReq
                     </UiTableRow>
                   )) : (
                     <UiTableRow>
-                      <UiTableCell colSpan={9} className="text-center">No requests found.</UiTableCell>
+                      <UiTableCell colSpan={10} className="text-center">No requests found.</UiTableCell>
                     </UiTableRow>
                   )}
                 </TableBody>
@@ -420,7 +460,8 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialReq
           </CardContent>
         </Card>
       </div>
-      <NewRequestDialog open={isNewRequestOpen} onOpenChange={setIsNewRequestOpen} />
     </TooltipProvider>
   );
 };
+
+    
