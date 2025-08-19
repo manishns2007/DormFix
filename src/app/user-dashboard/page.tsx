@@ -14,6 +14,7 @@ import {
 import { cookies } from "next/headers";
 import { LogoutButton } from "@/components/logout-button";
 import UserDashboardClientLoader from '@/components/user-dashboard-client-loader';
+import { ErrorBoundary } from "@/components/error-boundary";
 
 
 export default async function UserDashboardPage() {
@@ -63,7 +64,9 @@ export default async function UserDashboardPage() {
         </div>
       </header>
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-        <UserDashboardClientLoader />
+        <ErrorBoundary>
+          <UserDashboardClientLoader />
+        </ErrorBoundary>
       </main>
     </div>
   );

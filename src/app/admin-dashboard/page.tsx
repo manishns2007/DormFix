@@ -16,6 +16,7 @@ import { getRequests } from "@/lib/data";
 import { cookies } from 'next/headers';
 import { LogoutButton } from "@/components/logout-button";
 import DashboardClientLoader from "@/components/dashboard-client-loader";
+import { ErrorBoundary } from "@/components/error-boundary";
 
 
 export default async function DashboardPage() {
@@ -66,7 +67,9 @@ export default async function DashboardPage() {
         </div>
       </header>
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-        <DashboardClientLoader requests={requests} />
+        <ErrorBoundary>
+          <DashboardClientLoader requests={requests} />
+        </ErrorBoundary>
       </main>
     </div>
   );
