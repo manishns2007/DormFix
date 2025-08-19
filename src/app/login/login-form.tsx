@@ -44,16 +44,9 @@ export function LoginForm() {
     }
   }, [state, toast]);
 
-  const onSubmit = (data: z.infer<typeof loginSchema>) => {
-    const formData = new FormData();
-    formData.append('email', data.email);
-    formData.append('password', data.password);
-    formAction(formData);
-  };
-
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form action={formAction} className="space-y-6">
         <FormField
           control={form.control}
           name="email"
