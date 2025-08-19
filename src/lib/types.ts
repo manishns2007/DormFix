@@ -13,7 +13,7 @@ export type MaintenanceStatus = (typeof statuses)[number];
 export const hostels = ["Amaravathi", "Podhigai", "Vaigai", "Thamirabarani", "Paalar", "Bhavani", "Kaveri"] as const;
 export type HostelName = (typeof hostels)[number];
 
-export const roles = ["admin", "user"] as const;
+export const roles = ["admin", "user", "warden", "floor-incharge"] as const;
 export type Role = (typeof roles)[number];
 
 

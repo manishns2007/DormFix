@@ -2,10 +2,9 @@
 
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { addRequest } from '@/lib/data';
-import { createRequestSchema, type CreateRequestState, loginSchema } from '@/lib/types';
+import { createRequestSchema, type CreateRequestState, loginSchema, Role } from '@/lib/types';
 import { predictRequestUrgency } from '@/ai/flows/predict-request-urgency';
 
 
@@ -15,9 +14,11 @@ export type LoginState = {
 };
 
 // Mock users with different roles
-const users = [
-    { email: 'admin1235@passmail.in', password: '12345!', role: 'admin' as const },
-    { email: 'user1235@passmail.in', password: '123!', role: 'user' as const },
+const users: {email: string, password: string, role: Role, hostelName?: string, floor?: string}[] = [
+    { email: 'admin@dormfix.com', password: 'password', role: 'admin' },
+    { email: 'user@dormfix.com', password: 'password', role: 'user' },
+    { email: 'warden.podhigai@dormfix.com', password: 'password', role: 'warden', hostelName: 'Podhigai' },
+    { email: 'incharge.podhigai.1@dormfix.com', password: 'password', role: 'floor-incharge', hostelName: 'Podhigai', floor: '1' },
 ];
 
 
@@ -44,6 +45,8 @@ export async function login(
     const session = {
         email,
         role: user.role,
+        hostelName: user.hostelName,
+        floor: user.floor,
     };
 
     cookies().set('session', JSON.stringify(session), {
@@ -58,6 +61,10 @@ export async function login(
             redirect('/admin-dashboard');
         case 'user':
             redirect('/user-dashboard');
+        case 'warden':
+            redirect('/warden');
+        case 'floor-incharge':
+            redirect('/floor-incharge');
         default:
             redirect('/login');
     }

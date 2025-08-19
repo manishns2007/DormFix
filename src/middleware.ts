@@ -7,9 +7,11 @@ type Session = {
     role: Role;
 }
 
-const protectedRoutes = {
+const protectedRoutes: Record<string, Role> = {
     '/admin-dashboard': 'admin',
     '/user-dashboard': 'user',
+    '/warden': 'warden',
+    '/floor-incharge': 'floor-incharge',
 };
 
 const protectedPaths = Object.keys(protectedRoutes);
@@ -35,6 +37,12 @@ export function middleware(request: NextRequest) {
             break;
         case 'user':
             url.pathname = '/user-dashboard';
+            break;
+        case 'warden':
+            url.pathname = '/warden';
+            break;
+        case 'floor-incharge':
+            url.pathname = '/floor-incharge';
             break;
         default:
             url.pathname = '/login';
@@ -63,6 +71,12 @@ export function middleware(request: NextRequest) {
             case 'user':
                 url.pathname = '/user-dashboard';
                 break;
+            case 'warden':
+                url.pathname = '/warden';
+                break;
+            case 'floor-incharge':
+                url.pathname = '/floor-incharge';
+                break;
             default:
                 url.pathname = '/login';
                 break;
@@ -70,11 +84,14 @@ export function middleware(request: NextRequest) {
         return NextResponse.redirect(url);
     }
     
-    const requiredRole = (protectedRoutes as any)[pathname];
+    const requiredRole = protectedRoutes[pathname];
     if (requiredRole && session.role !== requiredRole) {
         const url = request.nextUrl.clone();
         url.pathname = '/login';
-        return NextResponse.redirect(url);
+        // Redirect and clear the invalid cookie
+        const response = NextResponse.redirect(url);
+        response.cookies.delete('session');
+        return response;
     }
   }
 
@@ -83,5 +100,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/', '/admin-dashboard/:path*', '/user-dashboard/:path*', '/login'],
+  matcher: ['/', '/admin-dashboard/:path*', '/user-dashboard/:path*', '/warden/:path*', '/floor-incharge/:path*', '/login'],
 };
