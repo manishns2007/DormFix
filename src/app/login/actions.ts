@@ -73,7 +73,7 @@ export async function logout() {
 
 
 export async function createRequest(
-  prevState: CreateRequestState,
+  prevState: CreateRequestState | null,
   formData: FormData
 ): Promise<CreateRequestState> {
   const validatedFields = createRequestSchema.safeParse({

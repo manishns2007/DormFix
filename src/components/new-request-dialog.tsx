@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useActionState } from 'react';
+import { useEffect, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -43,6 +43,7 @@ interface NewRequestDialogProps {
 
 export function NewRequestDialog({ open, onOpenChange }: NewRequestDialogProps) {
   const { toast } = useToast();
+  const [isPending, startTransition] = useTransition();
   
   const form = useForm<z.infer<typeof createRequestSchema>>({
     resolver: zodResolver(createRequestSchema),
@@ -53,7 +54,7 @@ export function NewRequestDialog({ open, onOpenChange }: NewRequestDialogProps) 
       floor: '',
       roomNumber: '',
       category: undefined,
-      priority: 'Low', // Default to low, will be updated dynamically
+      priority: 'Low',
       description: '',
     },
   });
@@ -71,26 +72,36 @@ export function NewRequestDialog({ open, onOpenChange }: NewRequestDialogProps) 
     }
   }, [watchedCategory, form]);
 
+  const onSubmit = (values: z.infer<typeof createRequestSchema>) => {
+    startTransition(async () => {
+      const formData = new FormData();
+      for (const key in values) {
+        formData.append(key, (values as any)[key]);
+      }
+      const photoInput = document.querySelector('input[name="photo"]') as HTMLInputElement;
+      if (photoInput && photoInput.files && photoInput.files.length > 0) {
+        formData.append('photo', photoInput.files[0]);
+      }
 
-  const [state, formAction] = useActionState(createRequest, {
-    message: '',
-    success: false,
-  });
+      const result = await createRequest(null, formData);
+      if (result.success) {
+        toast({
+          title: 'Success',
+          description: "Request submitted successfully.",
+          variant: 'default',
+        });
+        onOpenChange(false);
+        form.reset();
+      } else {
+        toast({
+          title: 'Error',
+          description: result.message || 'An error occurred.',
+          variant: 'destructive',
+        });
+      }
+    });
+  };
 
-  useEffect(() => {
-    if (state && state.message && form.formState.isSubmitted) {
-      toast({
-        title: state.success ? 'Success' : 'Error',
-        description: state.message,
-        variant: state.success ? 'default' : 'destructive',
-      });
-    }
-    if (state && state.success) {
-      onOpenChange(false);
-      form.reset();
-    }
-  }, [state, toast, onOpenChange, form]);
-  
   const handleDialogClose = (isOpen: boolean) => {
     if (!isOpen) {
         form.reset();
@@ -109,7 +120,7 @@ export function NewRequestDialog({ open, onOpenChange }: NewRequestDialogProps) 
         </DialogHeader>
         <ScrollArea className="max-h-[70vh] p-4">
           <Form {...form}>
-            <form action={formAction} className="space-y-4">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                <FormField
                 control={form.control}
                 name="name"
@@ -142,7 +153,7 @@ export function NewRequestDialog({ open, onOpenChange }: NewRequestDialogProps) 
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Hostel Name</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select a hostel" />
@@ -192,7 +203,7 @@ export function NewRequestDialog({ open, onOpenChange }: NewRequestDialogProps) 
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Category</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select a category" />
@@ -238,8 +249,8 @@ export function NewRequestDialog({ open, onOpenChange }: NewRequestDialogProps) 
 
               <DialogFooter className="pt-4">
                 <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
-                <Button type="submit">
-                  Submit Request
+                <Button type="submit" disabled={isPending}>
+                  {isPending ? 'Submitting...' : 'Submit Request'}
                 </Button>
               </DialogFooter>
             </form>
