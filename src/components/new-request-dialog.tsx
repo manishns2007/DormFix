@@ -85,66 +85,49 @@ export function NewRequestDialog({ open, onOpenChange }: NewRequestDialogProps) 
 
       // Handle file upload
       const photoFile = values.photo?.[0];
+      
+      const submitRequest = async (photoDataUri?: string) => {
+        if (photoDataUri) {
+          formData.append('photoDataUri', photoDataUri);
+        }
+        try {
+          const result = await createRequest(null, formData);
+          
+          if (result && result.success) {
+            toast({
+              title: 'Success',
+              description: result.message || "Request submitted successfully.",
+              variant: 'default',
+            });
+            onOpenChange(false);
+            form.reset();
+          } else {
+            toast({
+              title: 'Error',
+              description: result?.message || 'An unexpected error occurred.',
+              variant: 'destructive',
+            });
+          }
+        } catch (error) {
+            toast({
+              title: 'Error',
+              description: 'Failed to submit the request. Please try again.',
+              variant: 'destructive',
+            });
+        }
+      };
+
       if (photoFile) {
         // Convert file to data URI
         const reader = new FileReader();
         reader.onloadend = async () => {
-            const photoDataUri = reader.result as string;
-            formData.append('photoDataUri', photoDataUri);
-
-            // Submit after file is read
-            try {
-                const result = await createRequest(null, formData);
-                if (result?.success) {
-                  toast({
-                    title: 'Success',
-                    description: "Request submitted successfully.",
-                    variant: 'default',
-                  });
-                  onOpenChange(false);
-                  form.reset();
-                } else {
-                  toast({
-                    title: 'Error',
-                    description: result?.message || 'An unexpected error occurred.',
-                    variant: 'destructive',
-                  });
-                }
-            } catch (error) {
-                toast({
-                    title: 'Error',
-                    description: 'Failed to submit the request. Please try again.',
-                    variant: 'destructive',
-                });
-            }
+          const photoDataUri = reader.result as string;
+          await submitRequest(photoDataUri);
         };
         reader.readAsDataURL(photoFile);
       } else {
         // Submit without a photo
-        try {
-            const result = await createRequest(null, formData);
-            if (result?.success) {
-              toast({
-                title: 'Success',
-                description: "Request submitted successfully.",
-                variant: 'default',
-              });
-              onOpenChange(false);
-              form.reset();
-            } else {
-              toast({
-                title: 'Error',
-                description: result?.message || 'An unexpected error occurred.',
-                variant: 'destructive',
-              });
-            }
-        } catch (error) {
-            toast({
-                title: 'Error',
-                description: 'Failed to submit the request. Please try again.',
-                variant: 'destructive',
-            });
-        }
+        await submitRequest();
       }
     });
   };
