@@ -93,6 +93,35 @@ export function NewRequestDialog({ open, onOpenChange }: NewRequestDialogProps) 
             formData.append('photoDataUri', photoDataUri);
 
             // Submit after file is read
+            try {
+                const result = await createRequest(null, formData);
+                if (result?.success) {
+                  toast({
+                    title: 'Success',
+                    description: "Request submitted successfully.",
+                    variant: 'default',
+                  });
+                  onOpenChange(false);
+                  form.reset();
+                } else {
+                  toast({
+                    title: 'Error',
+                    description: result?.message || 'An unexpected error occurred.',
+                    variant: 'destructive',
+                  });
+                }
+            } catch (error) {
+                toast({
+                    title: 'Error',
+                    description: 'Failed to submit the request. Please try again.',
+                    variant: 'destructive',
+                });
+            }
+        };
+        reader.readAsDataURL(photoFile);
+      } else {
+        // Submit without a photo
+        try {
             const result = await createRequest(null, formData);
             if (result?.success) {
               toast({
@@ -105,29 +134,16 @@ export function NewRequestDialog({ open, onOpenChange }: NewRequestDialogProps) 
             } else {
               toast({
                 title: 'Error',
-                description: result?.message || 'An error occurred.',
+                description: result?.message || 'An unexpected error occurred.',
                 variant: 'destructive',
               });
             }
-        };
-        reader.readAsDataURL(photoFile);
-      } else {
-        // Submit without a photo
-        const result = await createRequest(null, formData);
-        if (result?.success) {
-          toast({
-            title: 'Success',
-            description: "Request submitted successfully.",
-            variant: 'default',
-          });
-          onOpenChange(false);
-          form.reset();
-        } else {
-          toast({
-            title: 'Error',
-            description: result?.message || 'An error occurred.',
-            variant: 'destructive',
-          });
+        } catch (error) {
+            toast({
+                title: 'Error',
+                description: 'Failed to submit the request. Please try again.',
+                variant: 'destructive',
+            });
         }
       }
     });
