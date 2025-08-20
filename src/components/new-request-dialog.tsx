@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useTransition } from 'react';
+import { useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -33,7 +33,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { createRequest } from '@/app/login/actions';
-import { categories, createRequestSchema, hostels, MaintenanceCategory } from '@/lib/types';
+import { categories, createRequestSchema, hostels } from '@/lib/types';
 import { ScrollArea } from './ui/scroll-area';
 
 interface NewRequestDialogProps {
@@ -60,71 +60,60 @@ export function NewRequestDialog({ open, onOpenChange }: NewRequestDialogProps) 
     },
   });
 
-  const watchedCategory = form.watch('category');
-
-  useEffect(() => {
-    if (watchedCategory) {
-      const highPriorityCategories: MaintenanceCategory[] = ["Electrical", "Lift", "Water"];
-      if (highPriorityCategories.includes(watchedCategory)) {
-        form.setValue('priority', 'High');
-      } else {
-        form.setValue('priority', 'Low');
-      }
-    }
-  }, [watchedCategory, form]);
-
   const onSubmit = (values: z.infer<typeof createRequestSchema>) => {
     startTransition(async () => {
-      const formData = new FormData();
-      // Append all form values to formData
-      for (const key in values) {
-          if (key !== 'photo') {
-             formData.append(key, (values as any)[key]);
-          }
-      }
+        const formData = new FormData();
+        // Append all form values to formData
+        Object.keys(values).forEach((key) => {
+            const formKey = key as keyof typeof values;
+            if (formKey !== 'photo') {
+                formData.append(formKey, values[formKey] as string);
+            }
+        });
 
-      const photoFile = values.photo?.[0];
+        const photoFile = values.photo?.[0];
       
-      const submitRequest = async (photoDataUri?: string) => {
-        if (photoDataUri) {
-          formData.append('photoDataUri', photoDataUri);
-        }
-        
-        try {
-          const result = await createRequest(null, formData);
-          
-          if (result && result.success) {
-            toast({
-              title: 'Success',
-              description: result.message || "Request submitted successfully.",
-            });
-            onOpenChange(false);
-            form.reset();
-          } else {
-            toast({
-              title: 'Error',
-              description: result?.message || 'An unexpected error occurred.',
-              variant: 'destructive',
-            });
-          }
-        } catch (error) {
-            toast({
-              title: 'Submission Failed',
-              description: 'An unexpected error occurred. Please try again.',
-              variant: 'destructive',
-            });
-        }
-      };
-
-      if (photoFile) {
-        const reader = new FileReader();
-        reader.onloadend = async () => {
-          await submitRequest(reader.result as string);
+        const submitRequest = async (photoDataUri?: string) => {
+            if (photoDataUri) {
+                formData.append('photoDataUri', photoDataUri);
+            }
+            
+            try {
+                const result = await createRequest(null, formData);
+                
+                if (result?.success) {
+                    toast({
+                    title: 'Success',
+                    description: result.message || "Request submitted successfully.",
+                    });
+                    onOpenChange(false);
+                    form.reset();
+                } else {
+                    toast({
+                    title: 'Error',
+                    description: result?.message || 'An unexpected error occurred.',
+                    variant: 'destructive',
+                    });
+                }
+            } catch (error) {
+                console.error("Submission failed:", error)
+                toast({
+                    title: 'Submission Failed',
+                    description: 'An unexpected error occurred. Please try again.',
+                    variant: 'destructive',
+                });
+            }
         };
-        reader.readAsDataURL(photoFile);
-      } else {
-        await submitRequest();
-      }
+
+        if (photoFile) {
+            const reader = new FileReader();
+            reader.onloadend = async () => {
+                await submitRequest(reader.result as string);
+            };
+            reader.readAsDataURL(photoFile);
+        } else {
+            await submitRequest();
+        }
     });
   };
 
@@ -249,6 +238,28 @@ export function NewRequestDialog({ open, onOpenChange }: NewRequestDialogProps) 
                   </FormItem>
                 )}
               />
+               <FormField
+                control={form.control}
+                name="priority"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Priority</FormLabel>
+                     <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a priority" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="Low">Low</SelectItem>
+                        <SelectItem value="Medium">Medium</SelectItem>
+                        <SelectItem value="High">High</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name="description"
@@ -266,8 +277,6 @@ export function NewRequestDialog({ open, onOpenChange }: NewRequestDialogProps) 
                   </FormItem>
                 )}
               />
-              {/* Hidden priority field */}
-              <input type="hidden" {...form.register('priority')} />
                <FormField
                 control={form.control}
                 name="photo"

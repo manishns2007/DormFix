@@ -79,7 +79,7 @@ export async function createRequest(
   const rawData = Object.fromEntries(formData.entries());
   
   // Exclude file from initial Zod validation
-  const { photo, ...dataToValidate } = rawData;
+  const { photo, photoDataUri, ...dataToValidate } = rawData;
   const validatedFields = createRequestSchema.omit({ photo: true }).safeParse(dataToValidate);
 
   if (!validatedFields.success) {
@@ -99,7 +99,7 @@ export async function createRequest(
       ...validatedFields.data,
       status: 'Submitted',
       urgency,
-      imageUrl: formData.get('photoDataUri') as string | undefined,
+      imageUrl: photoDataUri as string | undefined,
     });
     
     revalidatePath('/user-dashboard');
