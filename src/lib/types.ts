@@ -34,7 +34,6 @@ export interface MaintenanceRequest {
   imageUrl?: string;
   urgency: Urgency;
   isDuplicate?: boolean;
-  assignedTo?: string;
 }
 
 export const loginSchema = z.object({

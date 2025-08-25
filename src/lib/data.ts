@@ -17,7 +17,6 @@ let requests: MaintenanceRequest[] = [
     status: 'Submitted',
     createdDate: '2024-07-20T09:00:00Z',
     urgency: 'medium',
-    assignedTo: 'John Doe',
   },
   {
     id: 'REQ-002',
@@ -32,7 +31,6 @@ let requests: MaintenanceRequest[] = [
     status: 'In Progress',
     createdDate: '2024-07-20T11:30:00Z',
     urgency: 'high',
-    assignedTo: 'Jane Smith',
   },
   {
     id: 'REQ-003',
@@ -47,7 +45,6 @@ let requests: MaintenanceRequest[] = [
     status: 'Assigned',
     createdDate: '2024-07-21T14:00:00Z',
     urgency: 'low',
-    assignedTo: 'Mike Brown',
   },
   {
     id: 'REQ-004',
@@ -77,7 +74,6 @@ let requests: MaintenanceRequest[] = [
     status: 'Completed',
     createdDate: '2024-07-19T10:00:00Z',
     urgency: 'low',
-    assignedTo: 'Mike Brown',
   },
   {
     id: 'REQ-006',
@@ -106,7 +102,6 @@ let requests: MaintenanceRequest[] = [
     status: 'Assigned',
     createdDate: '2024-07-22T09:15:00Z',
     urgency: 'critical',
-    assignedTo: 'Jane Smith',
   },
 ];
 

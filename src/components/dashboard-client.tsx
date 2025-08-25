@@ -112,7 +112,6 @@ const generateExcelReport = (requestsToReport: MaintenanceRequestWithDate[]) => 
     Description: req.description,
     Status: req.status,
     'Created Date': format(new Date(req.createdDate), 'yyyy-MM-dd HH:mm:ss'),
-    'Assigned To': req.assignedTo || 'N/A',
   }));
 
   const worksheet = XLSX.utils.json_to_sheet(worksheetData);
@@ -128,7 +127,6 @@ const generateExcelReport = (requestsToReport: MaintenanceRequestWithDate[]) => 
     { wch: 50 }, // Description
     { wch: 15 }, // Status
     { wch: 20 }, // Created Date
-    { wch: 20 }, // Assigned To
   ];
 
   XLSX.writeFile(workbook, `DormFix-Excel-Report-${format(new Date(), 'yyyy-MM-dd')}.xlsx`);
@@ -413,7 +411,6 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialReq
                     <TableHead>Priority</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Submitted</TableHead>
-                    <TableHead>Assigned To</TableHead>
                     <TableHead className="text-right">Flags</TableHead>
                     <TableHead className="w-[50px] text-right">Actions</TableHead>
                   </UiTableRow>
@@ -444,7 +441,6 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialReq
                          <Badge variant={req.status === 'Completed' ? 'default' : 'outline'}>{req.status}</Badge>
                       </UiTableCell>
                       <UiTableCell>{format(req.createdDate, 'PPP')}</UiTableCell>
-                      <UiTableCell>{req.assignedTo || 'Unassigned'}</UiTableCell>
                       <UiTableCell className="text-right">
                         <div className="flex items-center justify-end gap-2">
                           {(req.urgency === 'critical' || req.urgency === 'high') && (
@@ -489,7 +485,7 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialReq
                     </UiTableRow>
                   )) : (
                     <UiTableRow>
-                      <UiTableCell colSpan={11} className="text-center">No requests found.</UiTableCell>
+                      <UiTableCell colSpan={10} className="text-center">No requests found.</UiTableCell>
                     </UiTableRow>
                   )}
                 </TableBody>
