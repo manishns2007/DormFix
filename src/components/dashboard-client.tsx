@@ -3,7 +3,7 @@
 
 import { useState, useMemo, FC, useEffect } from 'react';
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
-import { Trash2, Download, Copy, ShieldAlert, BarChart3, ListTodo, Wrench, CheckCircle2, FileSpreadsheet } from 'lucide-react';
+import { Trash2, Download, Copy, ShieldAlert, BarChart3, ListTodo, Wrench, CheckCircle2, FileSpreadsheet, MoreHorizontal, UserCheck, Check } from 'lucide-react';
 import { saveAs } from 'file-saver';
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, Table, TableRow, TableCell, WidthType, BorderStyle } from 'docx';
 import { format } from 'date-fns';
@@ -20,6 +20,7 @@ import { Tooltip as UiTooltip, TooltipContent, TooltipProvider, TooltipTrigger }
 import { CategoryIcon } from './icons';
 import { detectDuplicateRequests } from '@/ai/flows/detect-duplicate-requests';
 import { Checkbox } from './ui/checkbox';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from './ui/dropdown-menu';
 
 type MaintenanceRequestWithDate = Omit<MaintenanceRequest, 'createdDate'> & {
     createdDate: Date;
@@ -34,8 +35,9 @@ interface DashboardClientProps {
 
 const statusIcons: { [key in MaintenanceStatus]: React.ReactNode } = {
   Submitted: <ListTodo className="h-4 w-4 text-muted-foreground" />,
+  Assigned: <UserCheck className="h-4 w-4 text-muted-foreground" />,
   'In Progress': <Wrench className="h-4 w-4 text-muted-foreground" />,
-  Resolved: <CheckCircle2 className="h-4 w-4 text-muted-foreground" />,
+  Completed: <CheckCircle2 className="h-4 w-4 text-muted-foreground" />,
 };
 
 const generateReport = (requestsToReport: MaintenanceRequestWithDate[]) => {
@@ -179,6 +181,14 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialReq
 
     processRequests();
   }, [initialRequests]);
+  
+  const handleStatusChange = (requestId: string, newStatus: MaintenanceStatus) => {
+    setRequests(prevRequests =>
+      prevRequests.map(req =>
+        req.id === requestId ? { ...req, status: newStatus } : req
+      )
+    );
+  };
 
   const filteredRequests = useMemo(() => {
     return requests.filter(req => {
@@ -204,8 +214,9 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialReq
       total, 
       urgent, 
       submitted: statusCounts['Submitted'] || 0,
+      assigned: statusCounts['Assigned'] || 0,
       inProgress: statusCounts['In Progress'] || 0,
-      resolved: statusCounts['Resolved'] || 0,
+      completed: statusCounts['Completed'] || 0,
     };
   }, [requests]);
 
@@ -239,7 +250,7 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialReq
   return (
     <TooltipProvider>
       <div className="grid gap-4 md:gap-6">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Requests</CardTitle>
@@ -248,6 +259,24 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialReq
             <CardContent>
               <div className="text-2xl font-bold">{stats.total}</div>
             </CardContent>
+          </Card>
+          <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Submitted</CardTitle>
+                {statusIcons['Submitted']}
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stats.submitted}</div>
+              </CardContent>
+          </Card>
+          <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Assigned</CardTitle>
+                {statusIcons['Assigned']}
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stats.assigned}</div>
+              </CardContent>
           </Card>
           <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -260,20 +289,11 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialReq
           </Card>
           <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Resolved</CardTitle>
-                {statusIcons['Resolved']}
+                <CardTitle className="text-sm font-medium">Completed</CardTitle>
+                {statusIcons['Completed']}
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{stats.resolved}</div>
-              </CardContent>
-          </Card>
-           <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Submitted</CardTitle>
-                {statusIcons['Submitted']}
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{stats.submitted}</div>
+                <div className="text-2xl font-bold">{stats.completed}</div>
               </CardContent>
           </Card>
         </div>
@@ -341,7 +361,7 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialReq
                         variant="destructive"
                         disabled={selectedRequestIds.length === 0}
                     >
-                        <Trash2 className="mr-2 h-4 w-4" /> Remove Request ({selectedRequestIds.length})
+                        <Trash2 className="mr-2 h-4 w-4" /> Remove ({selectedRequestIds.length})
                     </Button>
                 </div>
             </div>
@@ -376,7 +396,7 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialReq
               <UiTable>
                 <TableHeader>
                   <UiTableRow>
-                     <TableHead className="w-[40px]">
+                     <UiTableCell className="w-[40px]">
                        <Checkbox
                           checked={
                             selectedRequestIds.length > 0 &&
@@ -385,7 +405,7 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialReq
                           onCheckedChange={handleSelectAll}
                           aria-label="Select all"
                         />
-                    </TableHead>
+                    </UiTableCell>
                     <TableHead>Hostel</TableHead>
                     <TableHead className="w-[80px]">Floor</TableHead>
                     <TableHead className="w-[100px]">Room</TableHead>
@@ -395,6 +415,7 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialReq
                     <TableHead>Submitted</TableHead>
                     <TableHead>Assigned To</TableHead>
                     <TableHead className="text-right">Flags</TableHead>
+                    <TableHead className="w-[50px] text-right">Actions</TableHead>
                   </UiTableRow>
                 </TableHeader>
                 <TableBody>
@@ -420,7 +441,7 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialReq
                         <Badge variant={req.priority === 'High' ? 'destructive' : 'secondary'}>{req.priority}</Badge>
                       </UiTableCell>
                       <UiTableCell>
-                         <Badge variant="outline">{req.status}</Badge>
+                         <Badge variant={req.status === 'Completed' ? 'default' : 'outline'}>{req.status}</Badge>
                       </UiTableCell>
                       <UiTableCell>{format(req.createdDate, 'PPP')}</UiTableCell>
                       <UiTableCell>{req.assignedTo || 'Unassigned'}</UiTableCell>
@@ -448,10 +469,27 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialReq
                           )}
                         </div>
                       </UiTableCell>
+                       <UiTableCell className="text-right">
+                         <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon">
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent>
+                              {statuses.map(status => (
+                                <DropdownMenuItem key={status} onSelect={() => handleStatusChange(req.id, status)}>
+                                  {req.status === status && <Check className="mr-2 h-4 w-4" />}
+                                  <span>{status}</span>
+                                </DropdownMenuItem>
+                              ))}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                      </UiTableCell>
                     </UiTableRow>
                   )) : (
                     <UiTableRow>
-                      <UiTableCell colSpan={10} className="text-center">No requests found.</UiTableCell>
+                      <UiTableCell colSpan={11} className="text-center">No requests found.</UiTableCell>
                     </UiTableRow>
                   )}
                 </TableBody>
@@ -463,5 +501,3 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialReq
     </TooltipProvider>
   );
 };
-
-    

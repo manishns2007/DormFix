@@ -7,7 +7,7 @@ export type MaintenanceCategory = (typeof categories)[number];
 export const priorities = ["Low", "Medium", "High"] as const;
 export type MaintenancePriority = (typeof priorities)[number];
 
-export const statuses = ["Submitted", "In Progress", "Resolved"] as const;
+export const statuses = ["Submitted", "Assigned", "In Progress", "Completed"] as const;
 export type MaintenanceStatus = (typeof statuses)[number];
 
 export const hostels = ["Amaravathi", "Podhigai", "Vaigai", "Thamirabarani", "Paalar", "Bhavani", "Kaveri"] as const;

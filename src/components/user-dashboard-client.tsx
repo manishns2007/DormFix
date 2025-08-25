@@ -1,29 +1,30 @@
+
 'use client';
 
 import { useState } from 'react';
 import { PlusCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { NewRequestDialog } from '@/components/new-request-dialog';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { MaintenanceRequest } from '@/lib/types';
+import { UserRequestsList } from './user-requests-list';
 
-export function UserDashboardClient() {
+interface UserDashboardClientProps {
+  requests: MaintenanceRequest[];
+}
+
+export function UserDashboardClient({ requests }: UserDashboardClientProps) {
   const [isNewRequestOpen, setIsNewRequestOpen] = useState(false);
 
   return (
-    <div className="w-full max-w-4xl mx-auto">
-        <Card className="text-center shadow-lg">
-            <CardHeader>
-                <CardTitle className="text-3xl font-bold">Welcome!</CardTitle>
-                <CardDescription className="text-lg text-muted-foreground">
-                    Have a maintenance issue? Submit a request, and we'll take care of it.
-                </CardDescription>
-            </CardHeader>
-            <CardContent>
-                <Button onClick={() => setIsNewRequestOpen(true)} size="lg">
-                    <PlusCircle className="mr-2 h-5 w-5" /> New Maintenance Request
-                </Button>
-            </CardContent>
-        </Card>
+    <div className="w-full">
+      <div className="flex justify-end mb-4">
+        <Button onClick={() => setIsNewRequestOpen(true)} size="lg">
+            <PlusCircle className="mr-2 h-5 w-5" /> New Maintenance Request
+        </Button>
+      </div>
+
+      <UserRequestsList requests={requests} />
+      
       <NewRequestDialog open={isNewRequestOpen} onOpenChange={setIsNewRequestOpen} />
     </div>
   );

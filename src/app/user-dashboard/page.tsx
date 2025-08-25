@@ -15,6 +15,7 @@ import { cookies } from "next/headers";
 import { LogoutButton } from "@/components/logout-button";
 import UserDashboardClientLoader from '@/components/user-dashboard-client-loader';
 import { ErrorBoundary } from "@/components/error-boundary";
+import { getRequests } from "@/lib/data";
 
 
 export default async function UserDashboardPage() {
@@ -22,6 +23,12 @@ export default async function UserDashboardPage() {
   const session = sessionCookie ? JSON.parse(sessionCookie.value) : null;
   const userEmail = session?.email || 'My Account';
   const userRole = session?.role || 'User';
+
+  const allRequests = await getRequests();
+  // In a real app, you'd filter by the logged-in user's ID.
+  // For this mock data, we'll just show all requests for demonstration.
+  const userRequests = allRequests;
+
 
   return (
     <div className="flex min-h-screen w-full flex-col">
@@ -42,7 +49,7 @@ export default async function UserDashboardPage() {
           </a>
         </nav>
         <div className="flex w-full items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
-            <h1 className="flex-1 text-lg font-semibold md:text-2xl">Submit a Request</h1>
+            <h1 className="flex-1 text-lg font-semibold md:text-2xl">Your Requests</h1>
           <div className="ml-auto flex-initial">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -65,7 +72,7 @@ export default async function UserDashboardPage() {
       </header>
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
         <ErrorBoundary>
-          <UserDashboardClientLoader />
+          <UserDashboardClientLoader requests={userRequests} />
         </ErrorBoundary>
       </main>
     </div>
