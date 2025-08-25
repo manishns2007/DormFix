@@ -10,12 +10,16 @@ export type MaintenancePriority = (typeof priorities)[number];
 export const statuses = ["Submitted", "Assigned", "In Progress", "Completed"] as const;
 export type MaintenanceStatus = (typeof statuses)[number];
 
-export const hostels = ["Amaravathi", "Podhigai", "Vaigai", "Thamirabarani", "Paalar", "Bhavani", "Kaveri"] as const;
+export const maleHostels = ["Podhigai", "Bhavani", "Thamirabarani", "Vaigai"] as const;
+export const femaleHostels = ["Amaravathi", "Paalar", "Kaveri"] as const;
+export const hostels = [...maleHostels, ...femaleHostels] as const;
 export type HostelName = (typeof hostels)[number];
 
 export const roles = ["admin", "user"] as const;
 export type Role = (typeof roles)[number];
 
+export const genders = ["Male", "Female"] as const;
+export type Gender = (typeof genders)[number];
 
 export type Urgency = "low" | "medium" | "high" | "critical" | null;
 
@@ -23,6 +27,7 @@ export interface MaintenanceRequest {
   id: string;
   name: string;
   registerNumber: string;
+  gender: Gender;
   hostelName: HostelName;
   floor: string;
   roomNumber: string;
@@ -45,6 +50,7 @@ export const loginSchema = z.object({
 export const createRequestSchema = z.object({
   name: z.string().min(1, 'Name is required.'),
   registerNumber: z.string().min(1, 'Register number is required.'),
+  gender: z.enum(genders, { required_error: 'Gender is required.' }),
   hostelName: z.enum(hostels, { required_error: 'Hostel name is required.' }),
   floor: z.string().min(1, 'Floor is required.'),
   roomNumber: z.string().min(1, 'Room number is required.'),
@@ -59,6 +65,7 @@ export type CreateRequestState = {
   errors?: {
     name?: string[];
     registerNumber?: string[];
+    gender?: string[];
     hostelName?: string[];
     floor?: string[];
     roomNumber?: string[];

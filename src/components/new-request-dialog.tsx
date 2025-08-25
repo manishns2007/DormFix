@@ -1,6 +1,6 @@
 'use client';
 
-import { useTransition } from 'react';
+import { useTransition, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -33,8 +33,9 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { createRequest } from '@/app/login/actions';
-import { categories, createRequestSchema, hostels } from '@/lib/types';
+import { categories, createRequestSchema, maleHostels, femaleHostels } from '@/lib/types';
 import { ScrollArea } from './ui/scroll-area';
+import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 
 interface NewRequestDialogProps {
   open: boolean;
@@ -50,6 +51,7 @@ export function NewRequestDialog({ open, onOpenChange }: NewRequestDialogProps) 
     defaultValues: {
       name: '',
       registerNumber: '',
+      gender: undefined,
       hostelName: undefined,
       floor: '',
       roomNumber: '',
@@ -59,6 +61,16 @@ export function NewRequestDialog({ open, onOpenChange }: NewRequestDialogProps) 
       photo: undefined,
     },
   });
+
+  const watchedGender = form.watch('gender');
+  
+  const availableHostels = watchedGender === 'Male' ? maleHostels : watchedGender === 'Female' ? femaleHostels : [];
+  
+  useEffect(() => {
+    // Reset hostel when gender changes
+    form.setValue('hostelName', undefined);
+  }, [watchedGender, form]);
+
 
   const onSubmit = (values: z.infer<typeof createRequestSchema>) => {
     startTransition(async () => {
@@ -164,20 +176,50 @@ export function NewRequestDialog({ open, onOpenChange }: NewRequestDialogProps) 
                   </FormItem>
                 )}
               />
+               <FormField
+                control={form.control}
+                name="gender"
+                render={({ field }) => (
+                  <FormItem className="space-y-3">
+                    <FormLabel>Gender</FormLabel>
+                    <FormControl>
+                      <RadioGroup
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        className="flex flex-row space-x-4"
+                      >
+                        <FormItem className="flex items-center space-x-2 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem value="Male" />
+                          </FormControl>
+                          <FormLabel className="font-normal">Male</FormLabel>
+                        </FormItem>
+                        <FormItem className="flex items-center space-x-2 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem value="Female" />
+                          </FormControl>
+                          <FormLabel className="font-normal">Female</FormLabel>
+                        </FormItem>
+                      </RadioGroup>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name="hostelName"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Hostel Name</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value} disabled={!watchedGender}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select a hostel" />
+                          <SelectValue placeholder={!watchedGender ? "Select gender first" : "Select a hostel"} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {hostels.map((h) => (
+                        {availableHostels.map((h) => (
                           <SelectItem key={h} value={h}>
                             {h}
                           </SelectItem>

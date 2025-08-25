@@ -363,7 +363,7 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialReq
                     </Button>
                 </div>
             </div>
-            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
                 <Input placeholder="Filter by Room #" value={filters.roomNumber} onChange={e => setFilters({...filters, roomNumber: e.target.value})} />
                 <Select value={filters.hostelName} onValueChange={v => setFilters({...filters, hostelName: v})}>
                     <SelectTrigger><SelectValue placeholder="Filter by Hostel" /></SelectTrigger>
@@ -378,6 +378,13 @@ export const DashboardClient: FC<DashboardClientProps> = ({ requests: initialReq
                     <SelectContent>
                         <SelectItem value="all">All Categories</SelectItem>
                         {categories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                    </SelectContent>
+                </Select>
+                <Select value={filters.priority} onValueChange={(v) => setFilters({ ...filters, priority: v })}>
+                    <SelectTrigger><SelectValue placeholder="Filter by Priority" /></SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All Priorities</SelectItem>
+                        {priorities.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
                     </SelectContent>
                 </Select>
                 <Select value={filters.status} onValueChange={v => setFilters({...filters, status: v})}>
