@@ -1,6 +1,6 @@
 'use client';
 
-import { useTransition, useEffect } from 'react';
+import { useTransition, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -33,7 +33,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { createRequest } from '@/app/login/actions';
-import { categories, createRequestSchema, maleHostels, femaleHostels } from '@/lib/types';
+import { categories, createRequestSchema, maleHostels, femaleHostels, MaintenanceCategory } from '@/lib/types';
 import { ScrollArea } from './ui/scroll-area';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 
@@ -63,13 +63,50 @@ export function NewRequestDialog({ open, onOpenChange }: NewRequestDialogProps) 
   });
 
   const watchedGender = form.watch('gender');
-  
+  const watchedHostel = form.watch('hostelName');
+  const watchedFloor = form.watch('floor');
+  const watchedCategory = form.watch('category');
+
   const availableHostels = watchedGender === 'Male' ? maleHostels : watchedGender === 'Female' ? femaleHostels : [];
   
+  const availableCategories = useMemo(() => {
+    const floorNumber = parseInt(watchedFloor, 10);
+    const isNumericFloor = !isNaN(floorNumber);
+    const floorStr = watchedFloor.toLowerCase();
+
+    let hasAC = false;
+    if (watchedHostel === 'Vaigai') {
+      hasAC = true;
+    } else if (watchedHostel === 'Amaravathi') {
+      const validFloors = ['g', '0', '1', '2', '3'];
+      if (validFloors.includes(floorStr) || (isNumericFloor && floorNumber >= 0 && floorNumber <= 3)) {
+        hasAC = true;
+      }
+    } else if (watchedHostel === 'Bhavani') {
+        const validFloors = ['g', '0', '1', '2', '3', '4', '5', '6', '7'];
+        if (validFloors.includes(floorStr) || (isNumericFloor && floorNumber >= 0 && floorNumber <= 7)) {
+            hasAC = true;
+        }
+    }
+
+    if (hasAC) {
+      return categories;
+    }
+    return categories.filter(c => c !== 'AC');
+  }, [watchedHostel, watchedFloor]);
+
+
   useEffect(() => {
     // Reset hostel when gender changes
     form.setValue('hostelName', undefined);
   }, [watchedGender, form]);
+
+  useEffect(() => {
+    // If AC is not in the available categories, and it was the selected category, reset it.
+    if (watchedCategory === 'AC' && !availableCategories.includes('AC')) {
+        form.setValue('category', undefined);
+    }
+  }, [availableCategories, watchedCategory, form]);
 
 
   const onSubmit = (values: z.infer<typeof createRequestSchema>) => {
@@ -269,7 +306,7 @@ export function NewRequestDialog({ open, onOpenChange }: NewRequestDialogProps) 
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {categories.map((c) => (
+                        {availableCategories.map((c) => (
                           <SelectItem key={c} value={c}>
                             {c}
                           </SelectItem>
