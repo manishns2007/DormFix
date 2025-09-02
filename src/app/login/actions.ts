@@ -75,12 +75,10 @@ export async function createRequest(
   prevState: CreateRequestState | null,
   formData: FormData
 ): Promise<CreateRequestState> {
-  // We don't use safeParse here because we need to handle the file upload separately.
   const rawData = Object.fromEntries(formData.entries());
-  
-  // Exclude file from initial Zod validation
-  const { photo, photoDataUri, ...dataToValidate } = rawData;
-  const validatedFields = createRequestSchema.omit({ photo: true }).safeParse(dataToValidate);
+
+  // We only validate the fields in createRequestSchema, ignoring file inputs
+  const validatedFields = createRequestSchema.safeParse(rawData);
 
   if (!validatedFields.success) {
     return {
@@ -89,8 +87,9 @@ export async function createRequest(
       success: false,
     };
   }
-  
+
   const { category, description } = validatedFields.data;
+  const photoDataUri = formData.get('photoDataUri') as string | null;
 
   try {
     const { urgency } = await predictRequestUrgency({ category, description });
@@ -99,7 +98,7 @@ export async function createRequest(
       ...validatedFields.data,
       status: 'Submitted',
       urgency,
-      imageUrl: photoDataUri as string | undefined,
+      imageUrl: photoDataUri || undefined,
     });
     
     revalidatePath('/user-dashboard');
@@ -109,7 +108,7 @@ export async function createRequest(
   } catch (error) {
     console.error('Error creating request:', error);
     if (error instanceof Error) {
-        return { message: `AI prediction failed: ${error.message}`, success: false };
+        return { message: `Request creation failed: ${error.message}`, success: false };
     }
     return { message: 'An unknown error occurred while creating the request.', success: false };
   }

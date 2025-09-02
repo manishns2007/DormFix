@@ -33,7 +33,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { createRequest } from '@/app/login/actions';
-import { categories, createRequestSchema, maleHostels, femaleHostels, MaintenanceCategory } from '@/lib/types';
+import { categories, createRequestSchema, maleHostels, femaleHostels } from '@/lib/types';
 import { ScrollArea } from './ui/scroll-area';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 
@@ -111,58 +111,64 @@ export function NewRequestDialog({ open, onOpenChange }: NewRequestDialogProps) 
 
   const onSubmit = (values: z.infer<typeof createRequestSchema>) => {
     startTransition(async () => {
-        const formData = new FormData();
-        // Append all form values to formData
-        Object.keys(values).forEach((key) => {
-            const formKey = key as keyof typeof values;
-            if (formKey !== 'photo') {
-                formData.append(formKey, values[formKey] as string);
-            }
-        });
-
-        const photoFile = values.photo?.[0];
+      const formData = new FormData();
+      // Append all validated form values to formData
+      for (const key in values) {
+          if (key !== 'photo' && values[key as keyof typeof values] !== undefined) {
+              formData.append(key, values[key as keyof typeof values] as string);
+          }
+      }
       
-        const submitRequest = async (photoDataUri?: string) => {
-            if (photoDataUri) {
-                formData.append('photoDataUri', photoDataUri);
-            }
-            
-            try {
-                const result = await createRequest(null, formData);
-                
-                if (result?.success) {
-                    toast({
-                    title: 'Success',
-                    description: result.message || "Request submitted successfully.",
-                    });
-                    onOpenChange(false);
-                    form.reset();
-                } else {
-                    toast({
-                    title: 'Error',
-                    description: result?.message || 'An unexpected error occurred.',
-                    variant: 'destructive',
-                    });
-                }
-            } catch (error) {
-                console.error("Submission failed:", error)
-                toast({
-                    title: 'Submission Failed',
-                    description: 'An unexpected error occurred. Please try again.',
-                    variant: 'destructive',
-                });
-            }
-        };
+      const photoFile = values.photo?.[0];
 
-        if (photoFile) {
-            const reader = new FileReader();
-            reader.onloadend = async () => {
-                await submitRequest(reader.result as string);
-            };
-            reader.readAsDataURL(photoFile);
-        } else {
-            await submitRequest();
+      const submitRequest = async (photoDataUri?: string) => {
+        if (photoDataUri) {
+          formData.append('photoDataUri', photoDataUri);
         }
+
+        try {
+          const result = await createRequest(null, formData);
+
+          if (result?.success) {
+            toast({
+              title: 'Success',
+              description: result.message || 'Request submitted successfully.',
+            });
+            onOpenChange(false);
+            form.reset();
+          } else {
+            toast({
+              title: 'Error',
+              description: result?.message || 'An unexpected error occurred.',
+              variant: 'destructive',
+            });
+          }
+        } catch (error) {
+          console.error('Submission failed:', error);
+          toast({
+            title: 'Submission Failed',
+            description: error instanceof Error ? error.message : 'An unexpected error occurred. Please try again.',
+            variant: 'destructive',
+          });
+        }
+      };
+
+      if (photoFile) {
+        const reader = new FileReader();
+        reader.onloadend = async () => {
+          await submitRequest(reader.result as string);
+        };
+        reader.onerror = () => {
+           toast({
+                title: 'Error Reading File',
+                description: 'There was an issue reading the uploaded photo.',
+                variant: 'destructive',
+            });
+        }
+        reader.readAsDataURL(photoFile);
+      } else {
+        await submitRequest();
+      }
     });
   };
 
