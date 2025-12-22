@@ -1,5 +1,2 @@
-# Firebase Studio
-
-This is a NextJS starter in Firebase Studio.
-
-To get started, take a look at src/app/page.tsx.
+DormFix is an intelligent issue management system designed for colleges to efficiently
+report, track, and resolve hostel and campus-related problems in real time.
