@@ -1,90 +1,216 @@
-🏠 DormFix – Fixing Hostel Life, One Issue at a Time
+# 🏠 DormFix – Hostel Management System
 
-A smart hostel management system where students report issues instantly, admins resolve them efficiently, and every action is tracked transparently.
+DormFix is a **modern hostel management system** built using **Next.js** and **Firebase Studio**, designed to simplify hostel operations such as complaints, maintenance, room management, and communication between students and administrators.
 
-🎮 Demo (Prototype): 📊 Admin Panel Preview:
+This project serves as a scalable foundation for building a real-world, production-ready hostel or dormitory management platform.
 
-⚠️ Note: DormFix is optimized for web & mobile-first usage to ensure quick issue reporting even on low bandwidth.
+---
 
-🌟 Features
+## 🚀 What is DormFix?
 
-✅ One-click student issue reporting (water, electricity, cleanliness, safety, Wi-Fi, etc.)
+DormFix helps hostels and dormitories manage day-to-day issues efficiently by providing:
 
-✅ Real-time admin dashboard for issue tracking & resolution
+* 🧾 Complaint & issue reporting (electricity, water, cleanliness, etc.)
+* 🛠️ Maintenance tracking and status updates
+* 👨‍🎓 Student-friendly interface
+* 🧑‍💼 Admin dashboard for wardens & staff
+* 🔔 Real-time updates using Firebase
+* 🔐 Secure authentication & role-based access
 
-✅ Priority-based complaint handling (urgent / normal / low)
+---
 
-✅ Status updates: Reported → In Progress → Resolved
+## 🧱 Project Architecture
 
-✅ Notification system for students & wardens
+DormFix follows a **modular and scalable architecture**, separating student-facing features, admin controls, backend logic, and documentation. This makes the system easy to maintain and extend.
 
-✅ Issue history & analytics for better hostel management
-
-🛠 How It Works
-
-Student selects an issue category and submits a complaint with optional photo/video. DormFix assigns the issue to the relevant admin/maintenance staff. Admin updates progress and resolution status in real time. Student receives notifications until the issue is resolved. All issues are logged for accountability and analysis.
-
-📂 Repo Structure DormFix/
-│ ├── Student_App/
-│ ├── issue_report/
-│ ├── uploads/
-│ └── notifications/
-│ ├── Admin_Dashboard/
-
-│ ├── issue_tracker/
-│ ├── analytics/
-│ └── staff_assignment/
-│ ├── Backend/
-
-│ ├── auth/
-│ ├── issues/
-│ └── users/
-│ ├── Database/
-
-│ ├── Docs/
-
-│ ├── LICENSE
-
+```
+DormFix/
+│
+├── Student_App/
+│   ├── issue_report/      # Students report hostel issues
+│   ├── uploads/           # Images/files uploaded with complaints
+│   └── notifications/     # Status updates & alerts for students
+│
+├── Admin_Dashboard/
+│   ├── issue_tracker/     # View & manage reported issues
+│   ├── analytics/         # Hostel issue insights & reports
+│   └── staff_assignment/  # Assign staff to resolve issues
+│
+├── Backend/
+│   ├── auth/              # Authentication & authorization logic
+│   ├── issues/            # Issue CRUD operations
+│   └── users/             # Student, admin, and staff management
+│
+├── Database/
+│   └── (Firestore / DB schemas & rules)
+│
+├── Docs/                  # Project documentation & diagrams
+├── LICENSE
 └── README.md
+```
 
-🔔 Issue Categories Supported
+### 🔹 Architectural Overview
 
-🚰 Water & Plumbing 💡 Electricity 🧹 Cleanliness & Hygiene 📶 Internet / Wi-Fi 🔒 Safety & Security 🛏 Room & Furniture 🍽 Mess / Food Complaints 📦 Other / Custom Issues
+* **Student_App**: Handles all student interactions such as reporting issues and receiving notifications
+* **Admin_Dashboard**: Provides wardens/admins with tools to track, analyze, and assign issues
+* **Backend**: Core business logic, APIs, and security rules
+* **Database**: Stores complaints, users, statuses, and logs securely
 
-🚀 Setup for Developers git clone https://github.com/Nareshkumar5232/DormFix.git
+This structure supports **role-based access**, clean separation of concerns, and future scalability.
 
-You can modify:
+---
 
-Student_App/ → UI for reporting issues
+## 🛠️ Tech Stack
 
-Admin_Dashboard/ → Issue management & analytics
+* **Frontend**: Next.js (App Router)
+* **Backend**: Firebase (Firestore, Auth)
+* **Language**: TypeScript
+* **Styling**: CSS / Tailwind (optional)
+* **Hosting**: Firebase Hosting / Vercel
 
-Backend/ → Authentication, notifications, workflows
+---
 
-🔗 Demo Links
+## ⚙️ Prerequisites
 
-🖥 Student Portal: 📊 Admin Dashboard:
+Make sure you have the following installed:
 
-🛠 Built With
+* Node.js **18+**
+* npm or yarn
+* Firebase CLI
 
-React / Next.js – Frontend UI Node.js + Express – Backend API MongoDB / PostgreSQL – Issue storage Firebase / Web Push – Notifications Cloud Storage – Image & media uploads
+Check versions:
 
-📈 Future Scope
+```bash
+node -v
+npm -v
+firebase --version
+```
 
-AI-based issue prioritization Auto-routing issues to relevant staff Mobile app (Android & iOS) QR-based room-level issue reporting Anonymous complaints for sensitive issues Performance reports for hostel staff
+---
 
-❓ Why DormFix?
+## 📥 Getting Started
 
-Efficiency → No more verbal complaints or lost registers Transparency → Students see real-time progress Accountability → Every issue is tracked & logged Speed → Faster resolutions, better hostel life
+### 1️⃣ Clone the Repository
 
-✅ So You Can:
+```bash
+git clone https://github.com/your-username/dormfix.git
+cd dormfix
+```
 
-Report hostel issues in seconds Track complaint status transparently Reduce admin chaos & manual work Improve student satisfaction & safety
+---
 
-👥 Team Members
+### 2️⃣ Install Dependencies
 
-Naresh Kumar N – Full Stack & System Design 💻
-N S Manish Bhalajy – Backend & Database 🗄
+```bash
+npm install
+```
 
+or
 
-🔥 Hostel life shouldn’t be about chasing wardens. With DormFix, problems get fixed — fast
+```bash
+yarn install
+```
+
+---
+
+### 3️⃣ Configure Firebase
+
+1. Go to **Firebase Console**
+2. Create a new project
+3. Enable:
+
+   * Authentication (Email/Password)
+   * Firestore Database
+4. Copy Firebase config and add it inside:
+
+```
+src/lib/firebase.ts
+```
+
+---
+
+### 4️⃣ Run the Project Locally
+
+```bash
+npm run dev
+```
+
+Open your browser at:
+
+```
+http://localhost:3000
+```
+
+🎉 DormFix is now running locally!
+
+---
+
+## 🧭 How to Use DormFix
+
+### 👨‍🎓 Student Flow
+
+* Login / Register
+* Submit hostel-related complaints
+* Track complaint status
+* Receive updates once resolved
+
+### 🧑‍💼 Admin / Warden Flow
+
+* View all complaints
+* Assign maintenance staff
+* Update issue status (Pending / In Progress / Resolved)
+* Monitor hostel operations
+
+---
+
+## 🧩 Key Features (Planned & Implemented)
+
+* ✅ Firebase Authentication
+* ✅ Complaint Management System
+* ⏳ Role-based dashboards (Admin / Student)
+* ⏳ Push notifications
+* ⏳ Analytics & reports
+
+---
+
+## 🔐 Security & Best Practices
+
+* Role-based access using Firebase rules
+* Secure Firestore queries
+* No sensitive keys committed to repo
+
+---
+
+## 📈 Future Enhancements
+
+* Room allocation system
+* Fee & payment tracking
+* Attendance & entry logs
+* Mobile app (React Native)
+* Dark mode UI
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome!
+
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Open a Pull Request
+
+---
+
+## 📜 License
+
+This project is licensed under the **MIT License**.
+
+---
+
+## 🧑‍💻 Author
+
+**Manish**
+B.Tech IT | Full Stack & System Design Enthusiast
+
+If you like this project, don’t forget to ⭐ the repo!
